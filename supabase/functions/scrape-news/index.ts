@@ -39,6 +39,17 @@ const ALLOWED_DOMAINS = [
   'theguardian.com',
 ];
 
+// Category to source name mapping for filtered scraping
+const CATEGORY_SOURCE_MAP: Record<string, string[]> = {
+  ai: ['TechCrunch', 'The Verge', 'MIT Technology Review', 'Wired', 'Ars Technica'],
+  apple: ['The Verge', 'Ars Technica', 'TechCrunch', 'Engadget', 'CNET'],
+  tesla: ['The Verge', 'Ars Technica', 'TechCrunch', 'Engadget'],
+  crypto: ['TechCrunch', 'Wired', 'The Verge', 'CoinDesk'],
+  climate: ['MIT Technology Review', 'The Verge', 'Reuters', 'The Guardian'],
+  politics: ['Reuters', 'Bloomberg', 'The Guardian', 'BBC', 'NYTimes'],
+  finance: ['Bloomberg', 'Reuters', 'WSJ', 'CNBC'],
+};
+
 const MAX_ARTICLES_PER_SOURCE = 5;
 const MAX_CONTENT_LENGTH = 100000;
 
@@ -110,6 +121,17 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Parse request body for category filter
+    let category = 'all';
+    try {
+      const body = await req.json();
+      category = body?.category?.toLowerCase() || 'all';
+    } catch {
+      // No body or invalid JSON, use default
+    }
+
+    console.log(`Scraping category: ${category}`);
+
     const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
     if (!FIRECRAWL_API_KEY) {
       throw new Error("FIRECRAWL_API_KEY is not configured");
@@ -124,17 +146,30 @@ Deno.serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     // Get active sources with RSS URLs
-    const { data: sources, error: sourcesError } = await supabase
+    let sourcesQuery = supabase
       .from("sources")
       .select("id, name, rss_url, website_url")
       .eq("is_active", true)
       .not("rss_url", "is", null);
 
+    const { data: allSources, error: sourcesError } = await sourcesQuery;
+
     if (sourcesError) {
       throw new Error(`Failed to fetch sources: ${sourcesError.message}`);
     }
 
-    console.log(`Found ${sources?.length || 0} active sources to scrape`);
+    // Filter sources by category if specified
+    let sources = allSources;
+    if (category !== 'all' && CATEGORY_SOURCE_MAP[category]) {
+      const allowedSourceNames = CATEGORY_SOURCE_MAP[category];
+      sources = allSources?.filter(source => 
+        allowedSourceNames.some(name => 
+          source.name.toLowerCase().includes(name.toLowerCase())
+        )
+      ) || [];
+    }
+
+    console.log(`Found ${sources?.length || 0} active sources to scrape for category: ${category}`);
 
     const results: { source: string; articlesFound: number; articlesAdded: number }[] = [];
 
