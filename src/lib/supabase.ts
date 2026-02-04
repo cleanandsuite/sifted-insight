@@ -156,7 +156,7 @@ export const rankings = {
 };
 
 // Re-rank all articles (admin function)
-export const reRankAll: async () => {
+export const reRankAll = async () => {
   const { data, error } = await supabase
     .rpc('recalculate_all_rankings');
   
@@ -165,7 +165,7 @@ export const reRankAll: async () => {
 };
 
 // Subscribe to new articles (real-time)
-export const subscribeToNewArticles: (callback: (payload: unknown) => void) => {
+export const subscribeToNewArticles = (callback: (payload: unknown) => void) => {
   return supabase
     .channel('articles')
     .on(
