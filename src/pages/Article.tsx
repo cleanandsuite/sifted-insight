@@ -8,6 +8,7 @@ import { ReadTimeComparison } from '@/components/ReadTimeComparison';
 import { NativeAd } from '@/components/NativeAd';
 import { Sidebar } from '@/components/Sidebar';
 import { Footer } from '@/components/Footer';
+import { SummaryTabs } from '@/components/SummaryTabs';
 import { getArticleById, getRegularArticles } from '@/data/mockArticles';
 
 const Article = () => {
@@ -93,20 +94,8 @@ const Article = () => {
                 </div>
               </motion.header>
               
-              {/* AI Summary Box */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-primary/5 border-l-4 border-primary p-6 mb-8"
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="tag-accent">AI Summary</span>
-                </div>
-                <p className="text-lg leading-relaxed">
-                  {article.aiSummary}
-                </p>
-              </motion.div>
+              {/* Summary Tabs */}
+              <SummaryTabs summaryTabs={article.summaryTabs} />
               
               {/* Media */}
               <motion.div
