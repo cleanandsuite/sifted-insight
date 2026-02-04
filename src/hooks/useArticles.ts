@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase, articles as articlesApi } from '@/lib/supabase';
-import type { ArticleWithRelations } from '@/lib/database.types';
+import { supabase } from '@/integrations/supabase/client';
 
 // Types matching frontend expectations
 export interface ArticleSummary {
@@ -26,7 +25,7 @@ export interface Article {
   isFeatured?: boolean;
 }
 
-// Hook to fetch articles from Supabase
+// Hook to fetch articles from database
 export const useArticles = () => {
   const [featuredArticle, setFeaturedArticle] = useState<Article | null>(null);
   const [regularArticles, setRegularArticles] = useState<Article[]>([]);
@@ -38,14 +37,31 @@ export const useArticles = () => {
       setLoading(true);
       
       // Fetch featured article
-      const featured = await articlesApi.getFeatured();
+      const { data: featured, error: featuredError } = await supabase
+        .from('articles')
+        .select('*, sources(*), summaries(*)')
+        .eq('is_featured', true)
+        .eq('status', 'published')
+        .order('rank_score', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      if (featuredError) throw featuredError;
       if (featured) {
         setFeaturedArticle(transformArticle(featured));
       }
 
-      // Fetch regular articles
-      const regular = await articlesApi.getRegular(12);
-      setRegularArticles(regular.map(transformArticle));
+      // Fetch regular articles (not featured)
+      const { data: regular, error: regularError } = await supabase
+        .from('articles')
+        .select('*, sources(*), summaries(*)')
+        .eq('status', 'published')
+        .eq('is_featured', false)
+        .order('rank_score', { ascending: false })
+        .limit(12);
+      
+      if (regularError) throw regularError;
+      setRegularArticles((regular || []).map(transformArticle));
       
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch articles'));
@@ -82,7 +98,13 @@ export const useArticle = (id: string | undefined) => {
 
       try {
         setLoading(true);
-        const data = await articlesApi.getById(id);
+        const { data, error: fetchError } = await supabase
+          .from('articles')
+          .select('*, sources(*), summaries(*)')
+          .eq('id', id)
+          .maybeSingle();
+        
+        if (fetchError) throw fetchError;
         if (data) {
           setArticle(transformArticle(data));
         }
@@ -105,12 +127,18 @@ export const useRealtimeArticles = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initial fetch
     const fetchArticles = async () => {
-      const regular = await articlesApi.getRegular(20);
-      setArticles(regular.map(transformArticle));
+      const { data } = await supabase
+        .from('articles')
+        .select('*, sources(*), summaries(*)')
+        .eq('status', 'published')
+        .order('rank_score', { ascending: false })
+        .limit(20);
+      
+      setArticles((data || []).map(transformArticle));
       setLoading(false);
     };
+    
     fetchArticles();
 
     // Subscribe to new articles
@@ -122,11 +150,9 @@ export const useRealtimeArticles = () => {
           event: 'INSERT',
           schema: 'public',
           table: 'articles',
-          filter: 'status=eq.published',
         },
-        (payload) => {
-          // Add new article to the list
-          fetchArticles(); // Refetch to get complete data
+        () => {
+          fetchArticles();
         }
       )
       .subscribe();
@@ -139,20 +165,27 @@ export const useRealtimeArticles = () => {
   return { articles, loading };
 };
 
-// Transform Supabase article to frontend format
+// Transform database article to frontend format
 const transformArticle = (dbArticle: any): Article => {
-  // Handle different possible structures
-  const sourceName = dbArticle.sources?.name || dbArticle.source_name || 'Unknown Source';
+  const sourceName = dbArticle.sources?.name || 'Unknown Source';
   const summary = dbArticle.summaries;
+  
+  // Parse JSONB fields (they come as arrays or strings from Supabase)
+  const keyPoints = Array.isArray(summary?.key_points) 
+    ? summary.key_points 
+    : [];
+  const takeaways = Array.isArray(summary?.takeaways) 
+    ? summary.takeaways 
+    : [];
   
   return {
     id: dbArticle.id,
     originalTitle: dbArticle.title,
-    aiSummary: dbArticle.summary || '',
+    aiSummary: summary?.executive_summary || dbArticle.summary || '',
     summaryTabs: {
-      keyPoints: summary?.key_points || [],
+      keyPoints,
       analysis: summary?.analysis || '',
-      takeaways: summary?.takeaways || [],
+      takeaways,
     },
     originalAuthor: dbArticle.author || 'Unknown',
     sourcePublication: sourceName,
@@ -166,49 +199,3 @@ const transformArticle = (dbArticle: any): Article => {
     isFeatured: dbArticle.is_featured,
   };
 };
-
-// Mock data fallback (for development/demo)
-export const useMockArticles = () => {
-  const [featuredArticle, setFeaturedArticle] = useState<Article | null>(null);
-  const [regularArticles, setRegularArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      // Import mock data dynamically to avoid circular deps
-      import('@/data/mockArticles').then(({ mockArticles, getFeaturedArticle, getRegularArticles }) => {
-        const featured = getFeaturedArticle();
-        const regular = getRegularArticles();
-        
-        if (featured) {
-          setFeaturedArticle(transformMockArticle(featured));
-        }
-        setRegularArticles(regular.map(transformMockArticle));
-        setLoading(false);
-      });
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  return { featuredArticle, regularArticles, loading, refetch: () => {} };
-};
-
-// Transform mock article to frontend format
-const transformMockArticle = (mock: any): Article => ({
-  id: mock.id,
-  originalTitle: mock.originalTitle,
-  aiSummary: mock.aiSummary,
-  summaryTabs: mock.summaryTabs,
-  originalAuthor: mock.originalAuthor,
-  sourcePublication: mock.sourcePublication,
-  sourceUrl: mock.sourceUrl,
-  mediaUrl: mock.mediaUrl,
-  mediaType: mock.mediaType,
-  tags: mock.tags,
-  originalReadTime: mock.originalReadTime,
-  siftedReadTime: mock.siftedReadTime,
-  publishedAt: mock.publishedAt,
-  isFeatured: mock.isFeatured,
-});
