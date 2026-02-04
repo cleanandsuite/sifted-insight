@@ -8,7 +8,7 @@ export interface Source {
   publishedAt: string;
   shortDescription?: string;
   type?: 'News' | 'Blog' | 'Report' | 'Press Release';
-  score?: number; // relevance score 0-100
+  score?: number;
 }
 
 export interface ArticleSources {
@@ -16,9 +16,8 @@ export interface ArticleSources {
   sources: Source[];
 }
 
-// Mock data for the Sources feature
 export const mockArticleSources: Record<string, Source[]> = {
-  '1': [ // GPT-5 article
+  '1': [
     {
       id: 's1',
       sourceName: 'The Verge',
@@ -56,7 +55,7 @@ export const mockArticleSources: Record<string, Source[]> = {
       score: 82,
     },
   ],
-  '2': [ // Apple Vision Pro article
+  '2': [
     {
       id: 's4',
       sourceName: 'MacRumors',
@@ -73,7 +72,7 @@ export const mockArticleSources: Record<string, Source[]> = {
       id: 's5',
       sourceName: '9to5Mac',
       sourceLogoUrl: 'https://logo.clearbit.com/9to5mac.com',
-      originalTitle: 'Vision Pro 2: Everything We Know About Apple\\'s Next Headset',
+      originalTitle: "Vision Pro 2: Everything We Know About Apple's Next Headset",
       originalUrl: 'https://9to5mac.com/vision-pro-2-rumors',
       author: 'Ben Lovejoy',
       publishedAt: '2025-02-03T14:30:00Z',
@@ -82,7 +81,7 @@ export const mockArticleSources: Record<string, Source[]> = {
       score: 75,
     },
   ],
-  '3': [ // Tesla Robotaxi article
+  '3': [
     {
       id: 's6',
       sourceName: 'Electrek',
@@ -99,16 +98,16 @@ export const mockArticleSources: Record<string, Source[]> = {
       id: 's7',
       sourceName: 'The Verge',
       sourceLogoUrl: 'https://logo.clearbit.com/theverge.com',
-      originalTitle: 'Inside Tesla\\'s Robotaxi Launch: 50 Cars, No Drivers, Infinite Promise',
+      originalTitle: "Inside Tesla's Robotaxi Launch: 50 Cars, No Drivers, Infinite Promise",
       originalUrl: 'https://www.theverge.com/tesla-robotaxi-austin',
       author: 'Andrew J. Hawkins',
       publishedAt: '2025-02-04T10:00:00Z',
-      shortDescription: 'On the ground report from Tesla\\'s historic robotaxi debut.',
+      shortDescription: "On the ground report from Tesla's historic robotaxi debut.",
       type: 'News',
       score: 90,
     },
   ],
-  '4': [ // Microsoft Discord article
+  '4': [
     {
       id: 's8',
       sourceName: 'Bloomberg',
@@ -125,21 +124,21 @@ export const mockArticleSources: Record<string, Source[]> = {
       id: 's9',
       sourceName: 'The Verge',
       sourceLogoUrl: 'https://logo.clearbit.com/theverge.com',
-      originalTitle: 'Microsoft\\'s Discord Deal: Why Gaming and Communities Matter More Than Ever',
+      originalTitle: "Microsoft's Discord Deal: Why Gaming and Communities Matter More Than Ever",
       originalUrl: 'https://www.theverge.com/microsoft-discord-strategy',
       author: 'Nilay Patel',
       publishedAt: '2025-02-03T20:00:00Z',
-      shortDescription: 'Analysis of Microsoft\\'s strategic reasoning behind the acquisition.',
+      shortDescription: "Analysis of Microsoft's strategic reasoning behind the acquisition.",
       type: 'News',
       score: 85,
     },
   ],
-  '5': [ // Claude 4 article
+  '5': [
     {
       id: 's10',
       sourceName: 'MIT Technology Review',
       sourceLogoUrl: 'https://logo.clearbit.com/technologyreview.com',
-      originalTitle: 'Anthropic\\'s Claude 4 Achieves Human-Level Performance on Graduate-Level Reasoning Tasks',
+      originalTitle: "Anthropic's Claude 4 Achieves Human-Level Performance on Graduate-Level Reasoning Tasks",
       originalUrl: 'https://www.technologyreview.com/claude-4',
       author: 'Dr. Emily Zhang',
       publishedAt: '2025-02-03T14:20:00Z',
@@ -151,16 +150,16 @@ export const mockArticleSources: Record<string, Source[]> = {
       id: 's11',
       sourceName: 'Ars Technica',
       sourceLogoUrl: 'https://logo.clearbit.com/arstechnica.com',
-      originalTitle: 'Claude 4\\'s Constitutional AI: How Safety and Capability Finally Coexist',
+      originalTitle: "Claude 4's Constitutional AI: How Safety and Capability Finally Coexist",
       originalUrl: 'https://arstechnica.com/claude-4-safety',
       author: 'Kevin Nguyen',
       publishedAt: '2025-02-03T12:00:00Z',
-      shortDescription: 'Deep dive into Anthropic\\'s safety-first training approach.',
+      shortDescription: "Deep dive into Anthropic's safety-first training approach.",
       type: 'News',
       score: 88,
     },
   ],
-  '6': [ // SpaceX Starship article
+  '6': [
     {
       id: 's12',
       sourceName: 'Ars Technica',
@@ -174,7 +173,7 @@ export const mockArticleSources: Record<string, Source[]> = {
       score: 98,
     },
   ],
-  '7': [ // EU AI Act article
+  '7': [
     {
       id: 's13',
       sourceName: 'TechCrunch',
@@ -188,7 +187,7 @@ export const mockArticleSources: Record<string, Source[]> = {
       score: 95,
     },
   ],
-  '8': [ // DeepMind math article
+  '8': [
     {
       id: 's14',
       sourceName: 'Wired',
@@ -209,14 +208,13 @@ export const mockArticleSources: Record<string, Source[]> = {
       originalUrl: 'https://nature.com/alphaproof',
       author: 'Dr. Terence Tao',
       publishedAt: '2025-02-02T10:00:00Z',
-      shortDescription: 'Peer-reviewed research paper on DeepMind\\'s mathematical AI system.',
+      shortDescription: "Peer-reviewed research paper on DeepMind's mathematical AI system.",
       type: 'Report',
       score: 92,
     },
   ],
 };
 
-// Helper functions
 export const getSourcesByArticleId = (articleId: string): Source[] => {
   return mockArticleSources[articleId] || [];
 };
