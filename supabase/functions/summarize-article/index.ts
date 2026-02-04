@@ -1,9 +1,53 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+// Input validation schema
+const requestSchema = z.object({
+  articleId: z.string().uuid({ message: "Invalid article ID format" }),
+  content: z.string()
+    .min(200, { message: "Content must be at least 200 characters" })
+    .max(100000, { message: "Content exceeds maximum length" }),
+});
+
+// Authenticate request - checks for service role or admin
+const authenticateRequest = async (req: Request): Promise<{ authorized: boolean; error?: string }> => {
+  const authHeader = req.headers.get('Authorization');
+  
+  // Check for service role key (internal calls from scrape-news)
+  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (authHeader === `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`) {
+    return { authorized: true };
+  }
+  
+  // For external calls, require authentication
+  if (!authHeader) {
+    return { authorized: false, error: 'Missing authorization header' };
+  }
+
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+  const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+  
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return { authorized: false, error: 'Server configuration error' };
+  }
+
+  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { headers: { Authorization: authHeader } }
+  });
+
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  if (error || !user) {
+    return { authorized: false, error: 'Unauthorized' };
+  }
+
+  // Any authenticated user can trigger summarization
+  return { authorized: true };
 };
 
 Deno.serve(async (req) => {
@@ -12,6 +56,15 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Authenticate the request
+    const authResult = await authenticateRequest(req);
+    if (!authResult.authorized) {
+      return new Response(
+        JSON.stringify({ error: authResult.error }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
@@ -23,17 +76,51 @@ Deno.serve(async (req) => {
       throw new Error("Supabase credentials not configured");
     }
 
-    const { articleId, content } = await req.json();
-
-    if (!articleId || !content) {
-      throw new Error("articleId and content are required");
+    // Parse and validate request body
+    let requestBody: unknown;
+    try {
+      requestBody = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON in request body" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+
+    const parseResult = requestSchema.safeParse(requestBody);
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: "Invalid request",
+          details: parseResult.error.errors.map(e => e.message),
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { articleId, content } = parseResult.data;
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+    // Verify article exists
+    const { data: article, error: articleError } = await supabase
+      .from("articles")
+      .select("id, status")
+      .eq("id", articleId)
+      .single();
+
+    if (articleError || !article) {
+      return new Response(
+        JSON.stringify({ error: "Article not found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     console.log(`Generating summary for article ${articleId}...`);
 
-    // Call Lovable AI to generate structured summary
+    // Call Lovable AI to generate structured summary (limit content to 8000 chars)
+    const truncatedContent = content.slice(0, 8000);
+    
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -57,7 +144,7 @@ Be concise but thorough. Focus on what matters to decision-makers.`,
           },
           {
             role: "user",
-            content: `Please analyze and summarize this article:\n\n${content.slice(0, 8000)}`,
+            content: `Please analyze and summarize this article:\n\n${truncatedContent}`,
           },
         ],
         tools: [
@@ -105,8 +192,7 @@ Be concise but thorough. Focus on what matters to decision-makers.`,
       if (aiResponse.status === 402) {
         throw new Error("AI credits exhausted. Please add credits to continue.");
       }
-      const errorText = await aiResponse.text();
-      throw new Error(`AI API error [${aiResponse.status}]: ${errorText}`);
+      throw new Error(`AI API error: ${aiResponse.status}`);
     }
 
     const aiData = await aiResponse.json();
@@ -174,7 +260,7 @@ Be concise but thorough. Focus on what matters to decision-makers.`,
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: "An error occurred while processing the request",
       }),
       {
         status: 500,

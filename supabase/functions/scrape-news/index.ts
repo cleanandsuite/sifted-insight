@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,14 +14,86 @@ interface Source {
   website_url: string | null;
 }
 
-interface ScrapedArticle {
-  title: string;
-  url: string;
-  content: string;
-  publishedAt: string | null;
-  author: string | null;
-  imageUrl: string | null;
-}
+// Validation schemas
+const urlSchema = z.string().url().max(2048);
+const titleSchema = z.string().min(5).max(500);
+const authorSchema = z.string().max(255).nullable();
+
+// Allowed domains for article scraping
+const ALLOWED_DOMAINS = [
+  'techcrunch.com',
+  'theverge.com',
+  'wired.com',
+  'arstechnica.com',
+  'technologyreview.com',
+  'engadget.com',
+  'mashable.com',
+  'venturebeat.com',
+  'zdnet.com',
+  'cnet.com',
+  'reuters.com',
+  'bloomberg.com',
+  'nytimes.com',
+  'wsj.com',
+  'bbc.com',
+  'theguardian.com',
+];
+
+const MAX_ARTICLES_PER_SOURCE = 5;
+const MAX_CONTENT_LENGTH = 100000;
+
+// Sanitize string by removing control characters
+const sanitizeString = (str: string): string => {
+  return str
+    .replace(/[\x00-\x1F\x7F-\x9F]/g, '') // Remove control characters
+    .trim();
+};
+
+// Validate URL is from allowed domain
+const isAllowedDomain = (url: string): boolean => {
+  try {
+    const urlObj = new URL(url);
+    return ALLOWED_DOMAINS.some(domain => urlObj.hostname.includes(domain));
+  } catch {
+    return false;
+  }
+};
+
+// Authenticate request - checks for admin/service role
+const authenticateRequest = async (req: Request): Promise<{ authorized: boolean; error?: string }> => {
+  const authHeader = req.headers.get('Authorization');
+  
+  // Check for service role key (internal cron job calls)
+  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (authHeader === `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`) {
+    return { authorized: true };
+  }
+  
+  // For external calls, require admin authentication
+  if (!authHeader) {
+    return { authorized: false, error: 'Missing authorization header' };
+  }
+
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+  const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+  
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return { authorized: false, error: 'Server configuration error' };
+  }
+
+  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { headers: { Authorization: authHeader } }
+  });
+
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+  if (error || !user) {
+    return { authorized: false, error: 'Unauthorized' };
+  }
+
+  // For now, any authenticated user can trigger scraping
+  // In production, you might want to add role-based checks here
+  return { authorized: true };
+};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -28,6 +101,15 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Authenticate the request
+    const authResult = await authenticateRequest(req);
+    if (!authResult.authorized) {
+      return new Response(
+        JSON.stringify({ error: authResult.error }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const FIRECRAWL_API_KEY = Deno.env.get("FIRECRAWL_API_KEY");
     if (!FIRECRAWL_API_KEY) {
       throw new Error("FIRECRAWL_API_KEY is not configured");
@@ -60,6 +142,13 @@ Deno.serve(async (req) => {
       try {
         console.log(`Scraping ${source.name}...`);
         
+        // Validate source URL
+        const sourceUrl = source.rss_url || source.website_url;
+        if (!sourceUrl || !urlSchema.safeParse(sourceUrl).success) {
+          console.error(`Invalid source URL for ${source.name}`);
+          continue;
+        }
+
         // Use Firecrawl to scrape the RSS feed page
         const scrapeResponse = await fetch("https://api.firecrawl.dev/v1/scrape", {
           method: "POST",
@@ -68,7 +157,7 @@ Deno.serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            url: source.rss_url || source.website_url,
+            url: sourceUrl,
             formats: ["markdown", "links"],
             onlyMainContent: true,
           }),
@@ -81,11 +170,28 @@ Deno.serve(async (req) => {
         }
 
         const scrapeData = await scrapeResponse.json();
+        
+        // Validate Firecrawl response
+        if (!scrapeData?.data && !scrapeData?.links) {
+          console.error(`Invalid response from Firecrawl for ${source.name}`);
+          continue;
+        }
+
         const links = scrapeData.data?.links || scrapeData.links || [];
         
-        // Filter for article links (common patterns)
+        // Filter for article links (common patterns) and validate URLs
         const articleLinks = links
           .filter((link: string) => {
+            // Validate URL format
+            if (!urlSchema.safeParse(link).success) {
+              return false;
+            }
+            
+            // Check if from allowed domain
+            if (!isAllowedDomain(link)) {
+              return false;
+            }
+
             const url = link.toLowerCase();
             return (
               url.includes("/article") ||
@@ -97,7 +203,7 @@ Deno.serve(async (req) => {
               url.match(/\d{5,}/) // Article IDs
             );
           })
-          .slice(0, 5); // Limit to 5 articles per source per run
+          .slice(0, MAX_ARTICLES_PER_SOURCE);
 
         console.log(`Found ${articleLinks.length} potential article links for ${source.name}`);
 
@@ -138,12 +244,28 @@ Deno.serve(async (req) => {
 
             const articleData = await articleResponse.json();
             const metadata = articleData.data?.metadata || articleData.metadata || {};
-            const markdown = articleData.data?.markdown || articleData.markdown || "";
+            let markdown = articleData.data?.markdown || articleData.markdown || "";
 
-            if (!metadata.title || markdown.length < 200) {
+            // Validate markdown content
+            if (!markdown || markdown.length < 200) {
               console.log(`Skipping article with insufficient content: ${articleUrl}`);
               continue;
             }
+
+            // Truncate content if too long
+            if (markdown.length > MAX_CONTENT_LENGTH) {
+              markdown = markdown.slice(0, MAX_CONTENT_LENGTH);
+            }
+
+            // Validate title
+            if (!titleSchema.safeParse(metadata.title).success) {
+              console.log(`Invalid title for article: ${articleUrl}`);
+              continue;
+            }
+
+            // Sanitize metadata
+            const sanitizedTitle = sanitizeString(metadata.title);
+            const sanitizedAuthor = metadata.author ? sanitizeString(metadata.author).slice(0, 255) : null;
 
             // Calculate read times
             const wordCount = markdown.split(/\s+/).length;
@@ -151,7 +273,7 @@ Deno.serve(async (req) => {
             const siftedReadTime = Math.ceil(originalReadTime * 0.3); // AI summary is ~30% of original
 
             // Generate slug
-            const slug = metadata.title
+            const slug = sanitizedTitle
               .toLowerCase()
               .replace(/[^a-z0-9]+/g, "-")
               .replace(/^-|-$/g, "")
@@ -161,13 +283,13 @@ Deno.serve(async (req) => {
             const { data: newArticle, error: insertError } = await supabase
               .from("articles")
               .insert({
-                title: metadata.title,
+                title: sanitizedTitle,
                 slug,
                 original_url: articleUrl,
                 source_id: source.id,
-                summary: markdown.slice(0, 500) + "...",
+                summary: sanitizeString(markdown.slice(0, 500)) + "...",
                 image_url: metadata.ogImage || metadata.image || null,
-                author: metadata.author || null,
+                author: sanitizedAuthor,
                 published_at: metadata.publishedTime || new Date().toISOString(),
                 original_read_time: originalReadTime,
                 sifted_read_time: siftedReadTime,
@@ -182,10 +304,10 @@ Deno.serve(async (req) => {
               continue;
             }
 
-            console.log(`Added article: ${metadata.title}`);
+            console.log(`Added article: ${sanitizedTitle}`);
             articlesAdded++;
 
-            // Trigger AI summarization asynchronously
+            // Trigger AI summarization asynchronously with service role auth
             fetch(`${SUPABASE_URL}/functions/v1/summarize-article`, {
               method: "POST",
               headers: {
@@ -232,7 +354,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: "An error occurred while processing the request",
       }),
       {
         status: 500,
