@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -20,10 +20,16 @@ import SourcesModal from '@/components/SourcesModal';
 import { useArticle } from '@/hooks/useArticles';
 import { getSourcesByArticleId } from '@/data/sources';
 import { timeAgo } from '@/lib/timeAgo';
+import { useAnalytics, usePageViewTracking } from '@/hooks/useAnalytics';
 
 const ArticlePage = () => {
   const { id } = useParams<{ id: string }>();
   const { article, loading, error } = useArticle(id);
+  const { trackArticleRead } = useAnalytics();
+  const readStartTime = useRef<number>(Date.now());
+  
+  // Track page view
+  usePageViewTracking(`/article/${id}`, id);
   
   // Sources feature state
   const [showSources, setShowSources] = useState(false);
@@ -37,6 +43,20 @@ const ArticlePage = () => {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+  
+  // Track read time on unmount
+  useEffect(() => {
+    readStartTime.current = Date.now();
+    
+    return () => {
+      if (id) {
+        const readTimeSeconds = Math.floor((Date.now() - readStartTime.current) / 1000);
+        if (readTimeSeconds > 5) { // Only track if spent more than 5 seconds
+          trackArticleRead(id, readTimeSeconds);
+        }
+      }
+    };
+  }, [id, trackArticleRead]);
   
   // Load sources when article changes
   useEffect(() => {

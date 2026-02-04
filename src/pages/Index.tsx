@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { StatusBar } from '@/components/StatusBar';
 import { Header } from '@/components/Header';
 import { FeaturedHero } from '@/components/FeaturedHero';
@@ -9,13 +9,18 @@ import { SkeletonCard, SkeletonHero } from '@/components/SkeletonCard';
 import { Footer } from '@/components/Footer';
 import { CategoryNav } from '@/components/CategoryNav';
 import { useArticles, type Article } from '@/hooks/useArticles';
+import { usePageViewTracking } from '@/hooks/useAnalytics';
 
 const ARTICLES_PER_PAGE = 8;
 
 const Index = () => {
   const { featuredArticle, regularArticles, loading, error, refetch } = useArticles();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const [visibleCount, setVisibleCount] = useState(ARTICLES_PER_PAGE);
+  
+  // Track page views
+  usePageViewTracking(location.pathname);
   
   const categoryFilter = searchParams.get('category');
 

@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          article_id: string | null
+          created_at: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          user_session_id: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          created_at?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          user_session_id?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          user_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       articles: {
         Row: {
           author: string | null
@@ -122,6 +157,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      daily_analytics: {
+        Row: {
+          article_reads: number | null
+          avg_read_time_seconds: number | null
+          created_at: string | null
+          date: string
+          id: string
+          page_views: number | null
+          top_articles: Json | null
+          top_topics: Json | null
+          unique_visitors: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          article_reads?: number | null
+          avg_read_time_seconds?: number | null
+          created_at?: string | null
+          date: string
+          id?: string
+          page_views?: number | null
+          top_articles?: Json | null
+          top_topics?: Json | null
+          unique_visitors?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          article_reads?: number | null
+          avg_read_time_seconds?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          page_views?: number | null
+          top_articles?: Json | null
+          top_topics?: Json | null
+          unique_visitors?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       rankings: {
         Row: {
@@ -265,6 +369,48 @@ export type Database = {
           },
         ]
       }
+      user_permissions: {
+        Row: {
+          created_at: string | null
+          id: string
+          permission: Database["public"]["Enums"]["admin_permission"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          permission: Database["public"]["Enums"]["admin_permission"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          permission?: Database["public"]["Enums"]["admin_permission"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -317,6 +463,21 @@ export type Database = {
           topic: string
         }[]
       }
+      has_permission: {
+        Args: {
+          _permission: Database["public"]["Enums"]["admin_permission"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       upsert_article: {
         Args: {
           p_author?: string
@@ -333,6 +494,13 @@ export type Database = {
       }
     }
     Enums: {
+      admin_permission:
+        | "manage_sources"
+        | "manage_articles"
+        | "trigger_scrape"
+        | "view_analytics"
+        | "manage_users"
+      app_role: "admin" | "editor" | "viewer"
       article_status:
         | "pending"
         | "processing"
@@ -467,6 +635,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      admin_permission: [
+        "manage_sources",
+        "manage_articles",
+        "trigger_scrape",
+        "view_analytics",
+        "manage_users",
+      ],
+      app_role: ["admin", "editor", "viewer"],
       article_status: [
         "pending",
         "processing",
