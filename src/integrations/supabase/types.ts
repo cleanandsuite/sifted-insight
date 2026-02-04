@@ -14,7 +14,225 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      articles: {
+        Row: {
+          author: string | null
+          created_at: string | null
+          engagement_score: number | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          media_type: string | null
+          media_url: string | null
+          original_read_time: number | null
+          original_url: string
+          published_at: string | null
+          rank_score: number | null
+          sifted_read_time: number | null
+          slug: string
+          source_id: string | null
+          status: Database["public"]["Enums"]["article_status"] | null
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author?: string | null
+          created_at?: string | null
+          engagement_score?: number | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          original_read_time?: number | null
+          original_url: string
+          published_at?: string | null
+          rank_score?: number | null
+          sifted_read_time?: number | null
+          slug: string
+          source_id?: string | null
+          status?: Database["public"]["Enums"]["article_status"] | null
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author?: string | null
+          created_at?: string | null
+          engagement_score?: number | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          original_read_time?: number | null
+          original_url?: string
+          published_at?: string | null
+          rank_score?: number | null
+          sifted_read_time?: number | null
+          slug?: string
+          source_id?: string | null
+          status?: Database["public"]["Enums"]["article_status"] | null
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rankings: {
+        Row: {
+          article_id: string | null
+          authority_score: number | null
+          computed_at: string | null
+          content_score: number | null
+          created_at: string | null
+          engagement_score: number | null
+          id: string
+          rank_position: number | null
+          rank_score: number
+          ranking_factors: Json | null
+          recency_score: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          authority_score?: number | null
+          computed_at?: string | null
+          content_score?: number | null
+          created_at?: string | null
+          engagement_score?: number | null
+          id?: string
+          rank_position?: number | null
+          rank_score?: number
+          ranking_factors?: Json | null
+          recency_score?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          authority_score?: number | null
+          computed_at?: string | null
+          content_score?: number | null
+          created_at?: string | null
+          engagement_score?: number | null
+          id?: string
+          rank_position?: number | null
+          rank_score?: number
+          ranking_factors?: Json | null
+          recency_score?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rankings_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: true
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sources: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          last_scrape_at: string | null
+          name: string
+          priority: Database["public"]["Enums"]["source_priority"] | null
+          rss_url: string | null
+          scrape_interval_minutes: number | null
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_scrape_at?: string | null
+          name: string
+          priority?: Database["public"]["Enums"]["source_priority"] | null
+          rss_url?: string | null
+          scrape_interval_minutes?: number | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_scrape_at?: string | null
+          name?: string
+          priority?: Database["public"]["Enums"]["source_priority"] | null
+          rss_url?: string | null
+          scrape_interval_minutes?: number | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      summaries: {
+        Row: {
+          analysis: string | null
+          article_id: string | null
+          confidence_score: number | null
+          created_at: string | null
+          executive_summary: string | null
+          id: string
+          key_points: Json | null
+          model_used: string | null
+          takeaways: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          analysis?: string | null
+          article_id?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          executive_summary?: string | null
+          id?: string
+          key_points?: Json | null
+          model_used?: string | null
+          takeaways?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          analysis?: string | null
+          article_id?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          executive_summary?: string | null
+          id?: string
+          key_points?: Json | null
+          model_used?: string | null
+          takeaways?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "summaries_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: true
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +241,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      article_status:
+        | "pending"
+        | "processing"
+        | "published"
+        | "failed"
+        | "archived"
+      source_priority: "low" | "medium" | "high" | "critical"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +374,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      article_status: [
+        "pending",
+        "processing",
+        "published",
+        "failed",
+        "archived",
+      ],
+      source_priority: ["low", "medium", "high", "critical"],
+    },
   },
 } as const
