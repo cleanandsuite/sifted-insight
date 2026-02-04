@@ -1,14 +1,14 @@
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Article } from '@/hooks/useArticles';
-import { TrendingList } from './TrendingList';
-import { CategoryNav } from './CategoryNav';
+import { RelatedArticles } from './RelatedArticles';
 import { NewsletterSignup } from './NewsletterSignup';
 
-interface SidebarProps {
-  suggestedArticles: Article[];
+interface ArticleSidebarProps {
+  article: Article;
 }
 
-export const Sidebar = ({ suggestedArticles }: SidebarProps) => {
+export const ArticleSidebar = ({ article }: ArticleSidebarProps) => {
   return (
     <motion.aside
       initial={{ opacity: 0, x: 20 }}
@@ -16,11 +16,11 @@ export const Sidebar = ({ suggestedArticles }: SidebarProps) => {
       transition={{ delay: 0.5 }}
       className="space-y-6"
     >
-      {/* Trending Now */}
-      <TrendingList />
+      {/* Related Articles */}
+      <RelatedArticles articleId={article.id} topic={article.topic} />
       
-      {/* Categories */}
-      <CategoryNav variant="vertical" />
+      {/* Newsletter */}
+      <NewsletterSignup variant="inline" />
       
       {/* Sponsored Ad Slot */}
       <div className="border border-border-strong bg-card">
@@ -28,10 +28,10 @@ export const Sidebar = ({ suggestedArticles }: SidebarProps) => {
           <span className="sponsored-label">Sponsored</span>
         </div>
         <div className="p-4">
-          <div className="aspect-square bg-secondary flex items-center justify-center border border-border">
+          <div className="aspect-[4/3] bg-secondary flex items-center justify-center border border-border">
             <div className="text-center p-4">
               <span className="terminal-text text-muted-foreground block mb-2">Ad Space</span>
-              <span className="text-xs text-muted-foreground">300×300</span>
+              <span className="text-xs text-muted-foreground">300×250</span>
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-3 font-mono">
@@ -39,9 +39,6 @@ export const Sidebar = ({ suggestedArticles }: SidebarProps) => {
           </p>
         </div>
       </div>
-      
-      {/* Newsletter */}
-      <NewsletterSignup variant="sidebar" />
     </motion.aside>
   );
 };

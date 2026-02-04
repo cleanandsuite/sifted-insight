@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { StatusBar } from '@/components/StatusBar';
 import { Header } from '@/components/Header';
 import { FeaturedHero } from '@/components/FeaturedHero';
@@ -5,10 +7,32 @@ import { ArticleCard } from '@/components/ArticleCard';
 import { Sidebar } from '@/components/Sidebar';
 import { SkeletonCard, SkeletonHero } from '@/components/SkeletonCard';
 import { Footer } from '@/components/Footer';
+import { CategoryNav } from '@/components/CategoryNav';
 import { useArticles, type Article } from '@/hooks/useArticles';
+
+const ARTICLES_PER_PAGE = 8;
 
 const Index = () => {
   const { featuredArticle, regularArticles, loading, error, refetch } = useArticles();
+  const [searchParams] = useSearchParams();
+  const [visibleCount, setVisibleCount] = useState(ARTICLES_PER_PAGE);
+  
+  const categoryFilter = searchParams.get('category');
+
+  // Filter articles by category if specified
+  const filteredArticles = categoryFilter && categoryFilter !== 'all' && categoryFilter !== 'trending'
+    ? regularArticles.filter(article => 
+        article.topic === categoryFilter || 
+        article.tags.includes(categoryFilter)
+      )
+    : regularArticles;
+
+  const displayedArticles = filteredArticles.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredArticles.length;
+
+  const loadMore = () => {
+    setVisibleCount(prev => prev + ARTICLES_PER_PAGE);
+  };
 
   // Show error state if Supabase fails
   if (error) {
@@ -21,6 +45,11 @@ const Index = () => {
       <Header />
       
       <main className="flex-1">
+        {/* Category Navigation */}
+        <section className="container mt-6">
+          <CategoryNav variant="horizontal" />
+        </section>
+        
         {/* Featured Hero */}
         <section className="container mt-6">
           {loading || !featuredArticle ? (
@@ -36,9 +65,13 @@ const Index = () => {
             {/* Articles Grid */}
             <div className="flex-1">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="terminal-text text-foreground font-medium">Latest Stories</h2>
+                <h2 className="terminal-text text-foreground font-medium">
+                  {categoryFilter && categoryFilter !== 'all' 
+                    ? `${categoryFilter} Stories` 
+                    : 'Latest Stories'}
+                </h2>
                 <span className="terminal-text text-muted-foreground">
-                  {loading ? '...' : `${regularArticles.length} articles`}
+                  {loading ? '...' : `${filteredArticles.length} articles`}
                 </span>
               </div>
               
@@ -50,8 +83,8 @@ const Index = () => {
                     <SkeletonCard />
                     <SkeletonCard />
                   </>
-                ) : regularArticles.length > 0 ? (
-                  regularArticles.map((article: Article, index: number) => (
+                ) : displayedArticles.length > 0 ? (
+                  displayedArticles.map((article: Article, index: number) => (
                     <ArticleCard 
                       key={article.id} 
                       article={article} 
@@ -60,10 +93,26 @@ const Index = () => {
                   ))
                 ) : (
                   <div className="col-span-2 py-12 text-center">
-                    <p className="text-muted-foreground">No articles yet. Check back soon!</p>
+                    <p className="text-muted-foreground">
+                      {categoryFilter 
+                        ? `No articles in ${categoryFilter} yet. Check back soon!`
+                        : 'No articles yet. Check back soon!'}
+                    </p>
                   </div>
                 )}
               </div>
+              
+              {/* Load More Button */}
+              {hasMore && !loading && (
+                <div className="mt-8 text-center">
+                  <button
+                    onClick={loadMore}
+                    className="px-6 py-3 border border-border-strong hover:bg-card-hover transition-colors font-mono text-sm uppercase tracking-wider"
+                  >
+                    Load More Articles
+                  </button>
+                </div>
+              )}
             </div>
             
             {/* Sidebar */}

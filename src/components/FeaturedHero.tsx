@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Article } from '@/data/mockArticles';
+import { Article } from '@/hooks/useArticles';
 import { ReadTimeComparison } from './ReadTimeComparison';
+import { BookmarkButton } from './BookmarkButton';
+import { timeAgo } from '@/lib/timeAgo';
 
 interface FeaturedHeroProps {
   article: Article;
@@ -24,14 +26,23 @@ export const FeaturedHero = ({ article }: FeaturedHeroProps) => {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
           
+          {/* Bookmark button */}
+          <div className="absolute top-4 right-4 z-10">
+            <BookmarkButton articleId={article.id} />
+          </div>
+          
           {/* Content overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
             <div className="max-w-4xl">
               {/* Tags */}
               <div className="flex items-center gap-2 mb-4">
-                <span className="tag-accent">{article.tags[0]}</span>
+                <span className="tag-accent">{article.tags[0] || article.topic || 'News'}</span>
                 <span className="font-mono text-xs text-white/70 uppercase">
                   {article.sourcePublication}
+                </span>
+                <span className="text-white/50">•</span>
+                <span className="font-mono text-xs text-white/70">
+                  {timeAgo(article.publishedAt)}
                 </span>
               </div>
               
@@ -41,7 +52,7 @@ export const FeaturedHero = ({ article }: FeaturedHeroProps) => {
               </h1>
               
               {/* AI Summary */}
-              <p className="text-base md:text-lg text-white/80 leading-relaxed mb-6 max-w-3xl">
+              <p className="text-base md:text-lg text-white/80 leading-relaxed mb-6 max-w-3xl line-clamp-2">
                 {article.aiSummary}
               </p>
               

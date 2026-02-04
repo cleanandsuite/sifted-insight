@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Article } from '@/data/mockArticles';
+import { Article } from '@/hooks/useArticles';
 import { ReadTimeComparison } from './ReadTimeComparison';
+import { BookmarkButton } from './BookmarkButton';
+import { SourceBadge } from './SourceBadge';
+import { timeAgo } from '@/lib/timeAgo';
 
 interface ArticleCardProps {
   article: Article;
@@ -24,23 +27,32 @@ export const ArticleCard = ({ article, index }: ArticleCardProps) => {
               alt={article.originalTitle}
               className="w-full h-full object-cover"
             />
+            {/* Bookmark button overlay */}
+            <div className="absolute top-2 right-2">
+              <BookmarkButton articleId={article.id} />
+            </div>
           </div>
           
           {/* Content */}
           <div className="p-4 flex flex-col flex-1">
             {/* Source & Tags */}
             <div className="flex items-center justify-between mb-3">
-              <span className="terminal-text">{article.sourcePublication}</span>
-              <span className="tag">{article.tags[0]}</span>
+              <SourceBadge source={article.sourcePublication} />
+              <span className="tag">{article.tags[0] || article.topic || 'News'}</span>
             </div>
             
             {/* Title */}
-            <h2 className="text-lg font-semibold leading-snug mb-3 tracking-tight line-clamp-2">
+            <h2 className="text-lg font-semibold leading-snug mb-2 tracking-tight line-clamp-2">
               {article.originalTitle}
             </h2>
             
+            {/* Author */}
+            <p className="terminal-text text-muted-foreground mb-2">
+              By {article.originalAuthor}
+            </p>
+            
             {/* AI Summary */}
-            <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1 line-clamp-3">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1 line-clamp-2">
               {article.aiSummary}
             </p>
             
@@ -51,7 +63,7 @@ export const ArticleCard = ({ article, index }: ArticleCardProps) => {
                 sifted={article.siftedReadTime} 
               />
               <span className="terminal-text text-muted-foreground">
-                {article.originalAuthor}
+                {timeAgo(article.publishedAt)}
               </span>
             </div>
           </div>

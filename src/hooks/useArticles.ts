@@ -23,6 +23,7 @@ export interface Article {
   siftedReadTime: number;
   publishedAt: string;
   isFeatured?: boolean;
+  topic?: string;
 }
 
 // Hook to fetch articles from database
@@ -197,5 +198,6 @@ const transformArticle = (dbArticle: any): Article => {
     siftedReadTime: dbArticle.sifted_read_time || 2,
     publishedAt: dbArticle.published_at,
     isFeatured: dbArticle.is_featured,
+    topic: dbArticle.topic || 'General',
   };
 };
