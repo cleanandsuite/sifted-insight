@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { StatusBar } from '@/components/StatusBar';
 import { Header } from '@/components/Header';
 import { FeaturedHero } from '@/components/FeaturedHero';
@@ -6,21 +5,15 @@ import { ArticleCard } from '@/components/ArticleCard';
 import { Sidebar } from '@/components/Sidebar';
 import { SkeletonCard, SkeletonHero } from '@/components/SkeletonCard';
 import { Footer } from '@/components/Footer';
-import { getFeaturedArticle, getRegularArticles } from '@/data/mockArticles';
+import { useArticles, type Article } from '@/hooks/useArticles';
 
 const Index = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  
-  const featuredArticle = getFeaturedArticle();
-  const regularArticles = getRegularArticles();
-  
-  // Simulate loading state
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
+  const { featuredArticle, regularArticles, loading, error, refetch } = useArticles();
+
+  // Show error state if Supabase fails
+  if (error) {
+    console.error('Failed to load articles:', error);
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -30,10 +23,10 @@ const Index = () => {
       <main className="flex-1">
         {/* Featured Hero */}
         <section className="container mt-6">
-          {isLoading ? (
+          {loading || !featuredArticle ? (
             <SkeletonHero />
           ) : (
-            featuredArticle && <FeaturedHero article={featuredArticle} />
+            <FeaturedHero article={featuredArticle} />
           )}
         </section>
         
@@ -45,26 +38,30 @@ const Index = () => {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="terminal-text text-foreground font-medium">Latest Stories</h2>
                 <span className="terminal-text text-muted-foreground">
-                  {regularArticles.length} articles
+                  {loading ? '...' : `${regularArticles.length} articles`}
                 </span>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {isLoading ? (
+                {loading ? (
                   <>
                     <SkeletonCard />
                     <SkeletonCard />
                     <SkeletonCard />
                     <SkeletonCard />
                   </>
-                ) : (
-                  regularArticles.map((article, index) => (
+                ) : regularArticles.length > 0 ? (
+                  regularArticles.map((article: Article, index: number) => (
                     <ArticleCard 
                       key={article.id} 
                       article={article} 
                       index={index}
                     />
                   ))
+                ) : (
+                  <div className="col-span-2 py-12 text-center">
+                    <p className="text-muted-foreground">No articles yet. Check back soon!</p>
+                  </div>
                 )}
               </div>
             </div>

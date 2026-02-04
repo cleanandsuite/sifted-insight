@@ -13,17 +13,17 @@ import { SummaryTabs } from '@/components/SummaryTabs';
 import SourcesIcon from '@/components/SourcesIcon';
 import SourcesDrawer from '@/components/SourcesDrawer';
 import SourcesModal from '@/components/SourcesModal';
-import { getArticleById, getRegularArticles } from '@/data/mockArticles';
+import { useArticle, type Article } from '@/hooks/useArticles';
 import { getSourcesByArticleId } from '@/data/sources';
 
-const Article = () => {
+const ArticlePage = () => {
   const { id } = useParams<{ id: string }>();
-  const article = id ? getArticleById(id) : undefined;
-  const suggestedArticles = getRegularArticles().filter(a => a.id !== id);
+  const { article, loading, error } = useArticle(id);
+  const suggestedArticles: Article[] = []; // TODO: Fetch from Supabase
   
   // Sources feature state
   const [showSources, setShowSources] = useState(false);
-  const [sources, setSources] = useState<ReturnType<typeof getSourcesByArticleId>>([]);
+  const [sources, setSources] = useState<any[]>([]);
   
   // Load sources when article changes
   useEffect(() => {
@@ -47,13 +47,29 @@ const Article = () => {
   // Check if mobile for modal vs drawer
   const isMobile = typeof window !== 'undefined' ? window.innerWidth < 1024 : false;
 
-  if (!article) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <StatusBar />
+        <Header />
+        <main className="flex-1 container py-16 text-center">
+          <p>Loading...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !article) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <StatusBar />
         <Header />
         <main className="flex-1 container py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Article Not Found</h1>
+          <p className="text-muted-foreground mb-4">
+            {error ? error.message : 'The article you are looking for does not exist.'}
+          </p>
           <Link to="/" className="text-primary hover:underline">
             ← Back to Feed
           </Link>
@@ -209,4 +225,4 @@ const Article = () => {
   );
 };
 
-export default Article;
+export default ArticlePage;
