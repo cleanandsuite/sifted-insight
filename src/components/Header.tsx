@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { TrendingUp } from 'lucide-react';
+import { DarkModeToggle } from './DarkModeToggle';
 
 export const Header = () => {
   return (
@@ -21,15 +23,17 @@ export const Header = () => {
           <Link to="/" className="terminal-text hover:text-foreground transition-colors">
             Feed
           </Link>
-          <span className="terminal-text hover:text-foreground transition-colors cursor-pointer">
-            Topics
-          </span>
+          <Link to="/?category=trending" className="terminal-text hover:text-foreground transition-colors flex items-center gap-1">
+            <TrendingUp className="w-3 h-3" />
+            Trending
+          </Link>
           <span className="terminal-text hover:text-foreground transition-colors cursor-pointer">
             Sources
           </span>
         </nav>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <DarkModeToggle />
           <button className="tag-accent cursor-pointer hover:opacity-90 transition-opacity">
             Subscribe
           </button>

@@ -7,23 +7,36 @@ import { Header } from '@/components/Header';
 import { SourceCredits } from '@/components/SourceCredits';
 import { ReadTimeComparison } from '@/components/ReadTimeComparison';
 import { NativeAd } from '@/components/NativeAd';
-import { Sidebar } from '@/components/Sidebar';
+import { ArticleSidebar } from '@/components/ArticleSidebar';
 import { Footer } from '@/components/Footer';
 import { SummaryTabs } from '@/components/SummaryTabs';
+import { ShareButtons } from '@/components/ShareButtons';
+import { BookmarkButton } from '@/components/BookmarkButton';
+import { AuthorBio } from '@/components/AuthorBio';
+import { NewsletterSignup } from '@/components/NewsletterSignup';
 import SourcesIcon from '@/components/SourcesIcon';
 import SourcesDrawer from '@/components/SourcesDrawer';
 import SourcesModal from '@/components/SourcesModal';
-import { useArticle, type Article } from '@/hooks/useArticles';
+import { useArticle } from '@/hooks/useArticles';
 import { getSourcesByArticleId } from '@/data/sources';
+import { timeAgo } from '@/lib/timeAgo';
 
 const ArticlePage = () => {
   const { id } = useParams<{ id: string }>();
   const { article, loading, error } = useArticle(id);
-  const suggestedArticles: Article[] = []; // TODO: Fetch from Supabase
   
   // Sources feature state
   const [showSources, setShowSources] = useState(false);
   const [sources, setSources] = useState<any[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Check viewport size
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Load sources when article changes
   useEffect(() => {
@@ -43,9 +56,6 @@ const ArticlePage = () => {
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, []);
-
-  // Check if mobile for modal vs drawer
-  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 1024 : false;
 
   if (loading) {
     return (
@@ -78,12 +88,6 @@ const ArticlePage = () => {
       </div>
     );
   }
-
-  const formattedDate = new Date(article.publishedAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -121,6 +125,9 @@ const ArticlePage = () => {
                   {article.tags.map((tag) => (
                     <span key={tag} className="tag">{tag}</span>
                   ))}
+                  {article.topic && article.topic !== 'General' && !article.tags.includes(article.topic) && (
+                    <span className="tag-accent">{article.topic}</span>
+                  )}
                 </div>
                 
                 {/* Title */}
@@ -132,7 +139,7 @@ const ArticlePage = () => {
                 <div className="flex flex-wrap items-center gap-4 pb-6 border-b border-border-strong">
                   <span className="terminal-text">{article.sourcePublication}</span>
                   <span className="text-muted-foreground">•</span>
-                  <span className="terminal-text text-muted-foreground">{formattedDate}</span>
+                  <span className="terminal-text text-muted-foreground">{timeAgo(article.publishedAt)}</span>
                   <span className="text-muted-foreground">•</span>
                   <ReadTimeComparison 
                     original={article.originalReadTime} 
@@ -143,6 +150,12 @@ const ArticlePage = () => {
                     onClick={() => setShowSources(true)}
                     sourceCount={sources.length}
                   />
+                </div>
+                
+                {/* Share & Bookmark */}
+                <div className="flex items-center justify-between pt-4">
+                  <ShareButtons title={article.originalTitle} />
+                  <BookmarkButton articleId={article.id} variant="full" />
                 </div>
               </motion.header>
               
@@ -168,6 +181,19 @@ const ArticlePage = () => {
                 </p>
               </motion.div>
               
+              {/* Author Bio */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="mb-8"
+              >
+                <AuthorBio 
+                  author={article.originalAuthor} 
+                  publication={article.sourcePublication} 
+                />
+              </motion.div>
+              
               {/* Source Credits */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -182,6 +208,16 @@ const ArticlePage = () => {
                 />
               </motion.div>
               
+              {/* Newsletter Signup */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 }}
+                className="mb-8"
+              >
+                <NewsletterSignup variant="inline" />
+              </motion.div>
+              
               {/* Native Ad */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -194,7 +230,7 @@ const ArticlePage = () => {
             
             {/* Sidebar */}
             <div className="w-full lg:w-80 flex-shrink-0">
-              <Sidebar suggestedArticles={suggestedArticles} />
+              <ArticleSidebar article={article} />
             </div>
           </div>
         </div>

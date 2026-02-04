@@ -35,6 +35,7 @@ export type Database = {
           summary: string | null
           tags: string[] | null
           title: string
+          topic: string | null
           updated_at: string | null
         }
         Insert: {
@@ -57,6 +58,7 @@ export type Database = {
           summary?: string | null
           tags?: string[] | null
           title: string
+          topic?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -79,6 +81,7 @@ export type Database = {
           summary?: string | null
           tags?: string[] | null
           title?: string
+          topic?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -87,6 +90,35 @@ export type Database = {
             columns: ["source_id"]
             isOneToOne: false
             referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookmarks: {
+        Row: {
+          article_id: string | null
+          created_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookmarks_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
             referencedColumns: ["id"]
           },
         ]
@@ -238,7 +270,67 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_clustered_feed: {
+        Args: { limit_count?: number }
+        Returns: {
+          author: string
+          id: string
+          image_url: string
+          media_url: string
+          original_read_time: number
+          original_url: string
+          published_at: string
+          rank_score: number
+          sifted_read_time: number
+          source_id: string
+          tags: string[]
+          title: string
+          topic: string
+        }[]
+      }
+      get_related_articles: {
+        Args: { article_id: string; limit_count?: number }
+        Returns: {
+          author: string
+          id: string
+          media_url: string
+          original_url: string
+          published_at: string
+          rank_score: number
+          source_id: string
+          tags: string[]
+          title: string
+          topic: string
+        }[]
+      }
+      get_trending_articles: {
+        Args: { limit_count?: number }
+        Returns: {
+          author: string
+          id: string
+          original_url: string
+          published_at: string
+          rank_score: number
+          source_id: string
+          tags: string[]
+          title: string
+          topic: string
+        }[]
+      }
+      upsert_article: {
+        Args: {
+          p_author?: string
+          p_image_url?: string
+          p_media_url?: string
+          p_original_url: string
+          p_slug: string
+          p_source_id?: string
+          p_tags?: string[]
+          p_title: string
+          p_topic?: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       article_status:
