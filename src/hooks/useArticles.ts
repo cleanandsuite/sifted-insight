@@ -182,7 +182,7 @@ export const useMockArticles = () => {
         const regular = getRegularArticles();
         
         if (featured) {
-          setFeaturedArticle(transformMockArticle(featureatured));
+          setFeaturedArticle(transformMockArticle(featured));
         }
         setRegularArticles(regular.map(transformMockArticle));
         setLoading(false);
