@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -9,12 +10,42 @@ import { NativeAd } from '@/components/NativeAd';
 import { Sidebar } from '@/components/Sidebar';
 import { Footer } from '@/components/Footer';
 import { SummaryTabs } from '@/components/SummaryTabs';
+import SourcesIcon from '@/components/SourcesIcon';
+import SourcesDrawer from '@/components/SourcesDrawer';
+import SourcesModal from '@/components/SourcesModal';
 import { getArticleById, getRegularArticles } from '@/data/mockArticles';
+import { getSourcesByArticleId } from '@/data/sources';
 
 const Article = () => {
   const { id } = useParams<{ id: string }>();
   const article = id ? getArticleById(id) : undefined;
   const suggestedArticles = getRegularArticles().filter(a => a.id !== id);
+  
+  // Sources feature state
+  const [showSources, setShowSources] = useState(false);
+  const [sources, setSources] = useState<ReturnType<typeof getSourcesByArticleId>>([]);
+  
+  // Load sources when article changes
+  useEffect(() => {
+    if (id) {
+      const articleSources = getSourcesByArticleId(id);
+      setSources(articleSources);
+    }
+  }, [id]);
+  
+  // Handle escape key to close sources
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowSources(false);
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, []);
+
+  // Check if mobile for modal vs drawer
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 1024 : false;
 
   if (!article) {
     return (
@@ -91,6 +122,11 @@ const Article = () => {
                     original={article.originalReadTime} 
                     sifted={article.siftedReadTime} 
                   />
+                  <span className="text-muted-foreground">•</span>
+                  <SourcesIcon 
+                    onClick={() => setShowSources(true)}
+                    sourceCount={sources.length}
+                  />
                 </div>
               </motion.header>
               
@@ -149,6 +185,26 @@ const Article = () => {
       </main>
       
       <Footer />
+      
+      {/* Sources Drawer (Desktop) */}
+      {!isMobile && (
+        <SourcesDrawer
+          isOpen={showSources}
+          onClose={() => setShowSources(false)}
+          sources={sources}
+          articleTitle={article.originalTitle}
+        />
+      )}
+      
+      {/* Sources Modal (Mobile) */}
+      {isMobile && (
+        <SourcesModal
+          isOpen={showSources}
+          onClose={() => setShowSources(false)}
+          sources={sources}
+          articleTitle={article.originalTitle}
+        />
+      )}
     </div>
   );
 };
