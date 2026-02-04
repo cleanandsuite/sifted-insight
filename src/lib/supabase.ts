@@ -5,10 +5,16 @@ import type { Database } from './database.types';
 // VITE_SUPABASE_URL
 // VITE_SUPABASE_ANON_KEY
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://jmhtzyctxntaojuovrtf.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+// Lovable Cloud uses a publishable key in most setups; keep anon-key as fallback for compatibility.
+const supabaseKey =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+if (!supabaseUrl) throw new Error('VITE_SUPABASE_URL is required.');
+if (!supabaseKey) throw new Error('VITE_SUPABASE_PUBLISHABLE_KEY (or VITE_SUPABASE_ANON_KEY) is required.');
+
+export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
 // Database types for type-safe queries
 export type { Database } from './database.types';
