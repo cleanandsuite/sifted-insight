@@ -5,6 +5,7 @@ import { useAdminAnalytics, useRecentEvents } from '@/hooks/useAdminAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ScrapeControlCard } from '@/components/admin/ScrapeControlCard';
 import { 
   BarChart, 
   Bar, 
@@ -26,12 +27,9 @@ import {
   Clock, 
   TrendingUp, 
   LogOut, 
-  RefreshCw,
   Newspaper,
   Activity
 } from 'lucide-react';
-import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
 const COLORS = ['#0066FF', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF6B6B'];
 
@@ -50,38 +48,6 @@ const Dashboard = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate('/admin/login');
-  };
-
-  const handleTriggerScrape = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error('Not authenticated');
-        return;
-      }
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scrape-news`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      const result = await response.json();
-      
-      if (result.success) {
-        toast.success(`Scraping complete! Added ${result.totalArticlesAdded} articles`);
-        refetch();
-      } else {
-        toast.error(result.error || 'Scraping failed');
-      }
-    } catch (error) {
-      toast.error('Failed to trigger scrape');
-    }
   };
 
   if (authLoading) {
@@ -116,15 +82,6 @@ const Dashboard = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleTriggerScrape}
-              className="border-2 border-black font-bold"
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Scrape Now
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
               onClick={() => navigate('/')}
               className="border-2 border-black font-bold"
             >
@@ -146,6 +103,11 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
+        {/* Scrape Control */}
+        <div className="mb-8">
+          <ScrapeControlCard onScrapeComplete={refetch} />
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatsCard
