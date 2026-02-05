@@ -5,6 +5,7 @@ import type { Database } from '@/integrations/supabase/types';
 type ContentCategory = Database['public']['Enums']['content_category'];
 
 const ALL_CATEGORIES: ContentCategory[] = ['tech', 'finance', 'politics', 'climate'];
+const VALID_STATUSES: Database['public']['Enums']['article_status'][] = ['published', 'pending'];
 
 // Types matching frontend expectations
 export interface ArticleSummary {
@@ -102,6 +103,10 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
   const BATCH_SIZE = 4;
   const INITIAL_LOAD = 10;
 
+  // Normalize category filter to lowercase to match DB enum values
+  const normalizedCategory = (categoryFilter?.toLowerCase().trim() || null) as ContentCategory | null;
+  const isValidCategory = normalizedCategory !== null && ALL_CATEGORIES.includes(normalizedCategory);
+
   // Initial fetch - ensures category diversity
   const fetchInitial = async () => {
     try {
@@ -110,13 +115,13 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
       setOffset(0);
       setHasMore(true);
 
-      // If filtering by category, just fetch that category
-      if (categoryFilter && categoryFilter !== 'all') {
+      // If filtering by a valid category, just fetch that category
+      if (isValidCategory) {
         const { data: featured, error: featuredError } = await supabase
           .from('articles')
           .select('*, sources(*), summaries(*)')
-          .eq('status', 'published')
-          .or(`topic.eq.${categoryFilter},content_category.eq.${categoryFilter.toLowerCase()}`)
+          .in('status', VALID_STATUSES)
+          .eq('content_category', normalizedCategory)
           .order('rank_score', { ascending: false })
           .limit(1)
           .maybeSingle();
@@ -131,8 +136,8 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
         const { data: regular, error: regularError } = await supabase
           .from('articles')
           .select('*, sources(*), summaries(*)')
-          .eq('status', 'published')
-          .or(`topic.eq.${categoryFilter},content_category.eq.${categoryFilter.toLowerCase()}`)
+          .in('status', VALID_STATUSES)
+          .eq('content_category', normalizedCategory)
           .order('rank_score', { ascending: false })
           .range(1, INITIAL_LOAD);
 
@@ -151,7 +156,7 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
         .from('articles')
         .select('*, sources(*), summaries(*)')
         .eq('is_featured', true)
-        .eq('status', 'published')
+        .in('status', VALID_STATUSES)
         .order('rank_score', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -171,7 +176,7 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
         const { data, error } = await supabase
           .from('articles')
           .select('*, sources(*), summaries(*)')
-          .eq('status', 'published')
+          .in('status', VALID_STATUSES)
           .eq('content_category', category)
           .order('rank_score', { ascending: false })
           .limit(1)
@@ -190,7 +195,7 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
         const { data: moreArticles, error: moreError } = await supabase
           .from('articles')
           .select('*, sources(*), summaries(*)')
-          .eq('status', 'published')
+          .in('status', VALID_STATUSES)
           .not('id', 'in', `(${excludeIds.join(',')})`)
           .order('rank_score', { ascending: false })
           .limit(remaining);
@@ -225,12 +230,12 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
       let query = supabase
         .from('articles')
         .select('*, sources(*), summaries(*)')
-        .eq('status', 'published')
+        .in('status', VALID_STATUSES)
         .order('rank_score', { ascending: false });
 
       // Apply category filter if present
-      if (categoryFilter && categoryFilter !== 'all') {
-        query = query.or(`topic.eq.${categoryFilter},content_category.eq.${categoryFilter.toLowerCase()}`);
+      if (isValidCategory) {
+        query = query.eq('content_category', normalizedCategory);
       }
 
       // Exclude already loaded articles

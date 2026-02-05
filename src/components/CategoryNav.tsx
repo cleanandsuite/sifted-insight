@@ -2,24 +2,19 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Cpu, 
-  Apple, 
-  Car, 
-  Bitcoin, 
   Leaf, 
   Landmark, 
   TrendingUp,
   LayoutGrid 
 } from 'lucide-react';
 
+// Main content categories that match the database content_category enum
 export const CATEGORIES = [
   { id: 'all', label: 'All', icon: LayoutGrid },
-  { id: 'AI', label: 'AI', icon: Cpu },
-  { id: 'Apple', label: 'Apple', icon: Apple },
-  { id: 'Tesla', label: 'Tesla', icon: Car },
-  { id: 'Crypto', label: 'Crypto', icon: Bitcoin },
-  { id: 'Climate', label: 'Climate', icon: Leaf },
-  { id: 'Politics', label: 'Politics', icon: Landmark },
-  { id: 'Finance', label: 'Finance', icon: TrendingUp },
+  { id: 'tech', label: 'Tech', icon: Cpu },
+  { id: 'finance', label: 'Finance', icon: TrendingUp },
+  { id: 'politics', label: 'Politics', icon: Landmark },
+  { id: 'climate', label: 'Climate', icon: Leaf },
 ] as const;
 
 export type CategoryId = typeof CATEGORIES[number]['id'];
