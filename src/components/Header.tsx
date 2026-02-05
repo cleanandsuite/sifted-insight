@@ -13,10 +13,16 @@ export const Header = () => {
     >
       <div className="container flex items-center justify-between py-4">
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-8 h-8 bg-foreground flex items-center justify-center">
-            <span className="text-background font-mono font-bold text-sm">S/</span>
+          <div className="flex items-center gap-1">
+            <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+              <span className="text-primary-foreground font-mono font-bold text-lg">N</span>
+            </div>
+            <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
           </div>
-          <span className="font-mono text-xl font-semibold tracking-tight">SIFT</span>
+          <div className="flex flex-col leading-none">
+            <span className="font-mono text-lg font-bold tracking-tight">NOOZ</span>
+            <span className="font-mono text-[10px] text-muted-foreground tracking-widest">.NEWS</span>
+          </div>
         </Link>
         
         <nav className="hidden md:flex items-center gap-8">

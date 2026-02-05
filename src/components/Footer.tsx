@@ -10,13 +10,19 @@ export const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 bg-foreground flex items-center justify-center">
-                <span className="text-background font-mono font-bold text-sm">S/</span>
+              <div className="flex items-center gap-1">
+                <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+                  <span className="text-primary-foreground font-mono font-bold text-lg">N</span>
+                </div>
+                <div className="w-1.5 h-1.5 bg-primary rounded-full" />
               </div>
-              <span className="font-mono text-xl font-semibold tracking-tight">SIFT</span>
+              <div className="flex flex-col leading-none">
+                <span className="font-mono text-lg font-bold tracking-tight">NOOZ</span>
+                <span className="font-mono text-[10px] text-muted-foreground tracking-widest">.NEWS</span>
+              </div>
             </Link>
             <p className="text-sm text-muted-foreground max-w-sm mb-4">
-              AI-powered news aggregation. We scrape, summarize, and serve you the stories that matter—faster.
+              AI-powered news aggregation. We curate, summarize, and deliver the stories that matter—faster.
             </p>
             
             {/* Newsletter in footer */}
@@ -51,7 +57,7 @@ export const Footer = () => {
         <div className="container py-4 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <span className="terminal-text text-muted-foreground">
-              © 2025 Sift. All rights reserved.
+              © 2025 NOOZ.NEWS. All rights reserved.
             </span>
             <span className="text-muted-foreground">•</span>
             <span className="terminal-text text-muted-foreground">
