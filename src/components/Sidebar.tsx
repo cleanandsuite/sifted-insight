@@ -3,6 +3,7 @@ import { Article } from '@/hooks/useArticles';
 import { TrendingList } from './TrendingList';
 import { CategoryNav } from './CategoryNav';
 import { NewsletterSignup } from './NewsletterSignup';
+import { AdUnit } from './AdUnit';
 
 interface SidebarProps {
   suggestedArticles: Article[];
@@ -28,15 +29,7 @@ export const Sidebar = ({ suggestedArticles }: SidebarProps) => {
           <span className="sponsored-label">Sponsored</span>
         </div>
         <div className="p-4">
-          <div className="aspect-square bg-secondary flex items-center justify-center border border-border">
-            <div className="text-center p-4">
-              <span className="terminal-text text-muted-foreground block mb-2">Ad Space</span>
-              <span className="text-xs text-muted-foreground">300×300</span>
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground mt-3 font-mono">
-            Advertise with SIFT. Reach tech-savvy readers.
-          </p>
+          <AdUnit format="rectangle" className="min-h-[250px]" />
         </div>
       </div>
       
