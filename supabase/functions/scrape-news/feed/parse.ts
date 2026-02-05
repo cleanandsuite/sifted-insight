@@ -56,22 +56,101 @@ function pickDescription(entry: any): string {
 }
 
 function pickImageUrl(entry: any, descriptionHtml: string): string | null {
-  // Try common media/enclosure shapes. Library may expose extensions differently across feed types.
-  const media = entry?.media ?? entry?.mediaRss ?? entry?.extensions?.media ?? null;
+  // The @mikaelporttila/rss library exposes media namespace as "media:rss" extension
+  // with nested structures like media:rss.thumbnail, media:rss.content, etc.
 
-  const mediaCandidates = [
-    media?.thumbnail?.url,
-    media?.thumbnail?.href,
-    media?.content?.url,
-    media?.content?.href,
-  ].filter(Boolean);
-  if (mediaCandidates.length > 0) return mediaCandidates[0] as string;
+  // 1. Check media:rss extension (most common for images in RSS 2.0)
+  // Library uses "media:rss" destructuring helper - check multiple possible locations
+  const mediaRss = 
+    entry?.["media:rss"] ?? 
+    entry?.mediaRss ?? 
+    entry?.media ?? 
+    entry?.["media"] ??
+    null;
 
-  const enclosures = Array.isArray(entry?.enclosures) ? entry.enclosures : [];
-  const enclosureImg = enclosures.find((e: any) => (e?.type ?? "").startsWith("image/"));
-  const enclosureUrl = enclosureImg?.href ?? enclosureImg?.url;
-  if (enclosureUrl) return enclosureUrl;
+  if (mediaRss) {
+    // media:thumbnail
+    const thumbnail = mediaRss?.thumbnail;
+    if (thumbnail) {
+      const thumbUrl = thumbnail?.url ?? thumbnail?.href ?? (typeof thumbnail === "string" ? thumbnail : null);
+      if (thumbUrl) return thumbUrl;
+      // Sometimes it's an array
+      if (Array.isArray(thumbnail) && thumbnail[0]) {
+        const first = thumbnail[0];
+        const url = first?.url ?? first?.href ?? (typeof first === "string" ? first : null);
+        if (url) return url;
+      }
+    }
 
+    // media:content (often used for images)
+    const content = mediaRss?.content;
+    if (content) {
+      const contentUrl = content?.url ?? content?.href ?? (typeof content === "string" ? content : null);
+      if (contentUrl && (content?.medium === "image" || !content?.medium)) return contentUrl;
+      // Array form
+      if (Array.isArray(content)) {
+        const imgContent = content.find((c: any) => c?.medium === "image" || (c?.type ?? "").startsWith("image/"));
+        const url = imgContent?.url ?? imgContent?.href;
+        if (url) return url;
+        // Fallback to first content
+        const first = content[0];
+        const firstUrl = first?.url ?? first?.href;
+        if (firstUrl) return firstUrl;
+      }
+    }
+  }
+
+  // 2. Check attachments (library uses "attachments" for RSS enclosures)
+  const attachments = entry?.attachments ?? entry?.enclosures ?? entry?.enclosure ?? [];
+  const attachmentList = Array.isArray(attachments) ? attachments : [attachments].filter(Boolean);
+  for (const att of attachmentList) {
+    const mimeType = att?.mimeType ?? att?.type ?? "";
+    const url = att?.url ?? att?.href;
+    if (url && (mimeType.startsWith("image/") || mimeType === "")) {
+      if (mimeType.startsWith("image/")) return url;
+      if (/\.(jpg|jpeg|png|gif|webp|avif)(\?|$)/i.test(url)) return url;
+    }
+  }
+
+  // 2b. Also check raw enclosures format
+  const enclosures = entry?.enclosure ?? [];
+  const enclosureList = Array.isArray(enclosures) ? enclosures : [enclosures].filter(Boolean);
+  for (const enc of enclosureList) {
+    const type = enc?.type ?? "";
+    const url = enc?.url ?? enc?.href;
+    if (url && (type.startsWith("image/") || type === "")) {
+      // If no type, check if URL looks like an image
+      if (type.startsWith("image/")) return url;
+      if (/\.(jpg|jpeg|png|gif|webp|avif)(\?|$)/i.test(url)) return url;
+    }
+  }
+
+  // 3. Check links for image type (Atom feeds sometimes use link with type)
+  const links = entry?.links ?? [];
+  for (const link of links) {
+    const rel = link?.rel ?? "";
+    const type = link?.type ?? "";
+    const href = link?.href;
+    if (href && (rel === "enclosure" || type.startsWith("image/"))) {
+      return href;
+    }
+  }
+
+  // 4. Check image element (some RSS feeds use <image> at item level)
+  const itemImage = entry?.image;
+  if (itemImage) {
+    const imgUrl = itemImage?.url ?? itemImage?.href ?? (typeof itemImage === "string" ? itemImage : null);
+    if (imgUrl) return imgUrl;
+  }
+
+  // 5. Check itunes:image (common for podcasts)
+  const itunesImage = entry?.["itunes:image"] ?? entry?.itunes?.image;
+  if (itunesImage) {
+    const url = itunesImage?.href ?? itunesImage?.url ?? (typeof itunesImage === "string" ? itunesImage : null);
+    if (url) return url;
+  }
+
+  // 6. Fallback: extract from HTML content/description
   return extractFirstImageUrlFromHtml(descriptionHtml);
 }
 
@@ -90,6 +169,15 @@ export async function parseFeedXml(xml: string): Promise<ParsedFeed | null> {
 
     const items: FeedItem[] = [];
     for (const entry of entries) {
+      // Debug: log first entry structure to help diagnose image extraction
+      if (items.length === 0) {
+        console.log("Sample entry keys:", Object.keys(entry ?? {}));
+        if (entry?.["media:rss"]) console.log("media:rss:", JSON.stringify(entry["media:rss"]).slice(0, 300));
+        if (entry?.attachments) console.log("attachments:", JSON.stringify(entry.attachments).slice(0, 300));
+        if (entry?.enclosures) console.log("enclosures:", JSON.stringify(entry.enclosures).slice(0, 300));
+        if (entry?.links) console.log("links sample:", JSON.stringify(entry.links.slice(0, 2)).slice(0, 300));
+      }
+
       const rawTitle = entry?.title?.value ?? entry?.title ?? "";
       const rawDescription = pickDescription(entry);
       const rawLink = pickLink(entry);
