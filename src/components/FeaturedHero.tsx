@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Article } from '@/hooks/useArticles';
 import { ReadTimeComparison } from './ReadTimeComparison';
 import { BookmarkButton } from './BookmarkButton';
+ import { ArticleImage } from './ArticleImage';
 import { timeAgo } from '@/lib/timeAgo';
 
 interface FeaturedHeroProps {
@@ -19,10 +20,13 @@ export const FeaturedHero = ({ article }: FeaturedHeroProps) => {
     >
       <Link to={`/article/${article.id}`} className="block group">
         <div className="relative w-full aspect-[21/9] border border-border-strong overflow-hidden">
-          <img
+           <ArticleImage
             src={article.mediaUrl}
             alt={article.originalTitle}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+             source={article.sourcePublication}
+             category={article.tags[0] || article.topic}
+             variant="hero"
+             className="transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
           
