@@ -1,6 +1,39 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
+// AI Provider configuration
+type AIProvider = 'minimax' | 'lovable';
+
+const AI_PROVIDERS = {
+  minimax: {
+    url: 'https://api.minimax.io/v1/chat/completions',
+    model: 'MiniMax-M2.1',
+    keyEnv: 'MINIMAX_API_KEY',
+  },
+  lovable: {
+    url: 'https://ai.gateway.lovable.dev/v1/chat/completions',
+    model: 'google/gemini-3-flash-preview',
+    keyEnv: 'LOVABLE_API_KEY',
+  },
+};
+
+// Detect which AI provider to use based on available keys
+const getAIProvider = (): { provider: AIProvider; apiKey: string } => {
+  // Prefer MiniMax if configured
+  const minimaxKey = Deno.env.get("MINIMAX_API_KEY");
+  if (minimaxKey) {
+    return { provider: 'minimax', apiKey: minimaxKey };
+  }
+  
+  // Fall back to Lovable AI
+  const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+  if (lovableKey) {
+    return { provider: 'lovable', apiKey: lovableKey };
+  }
+  
+  throw new Error("No AI API key configured. Set MINIMAX_API_KEY or LOVABLE_API_KEY.");
+};
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -65,10 +98,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
+    // Get AI provider configuration
+    const { provider, apiKey } = getAIProvider();
+    const providerConfig = AI_PROVIDERS[provider];
+    
+    console.log(`Using AI provider: ${provider} (${providerConfig.model})`);
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -116,19 +150,19 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log(`Generating summary for article ${articleId}...`);
+    console.log(`Generating summary for article ${articleId} using ${provider}...`);
 
     // Call Lovable AI to generate structured summary (limit content to 8000 chars)
     const truncatedContent = content.slice(0, 8000);
     
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const aiResponse = await fetch(providerConfig.url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: providerConfig.model,
         messages: [
           {
             role: "system",
@@ -214,7 +248,7 @@ Write in a professional, journalistic tone. Be specific with facts—use actual 
 
     const summary = JSON.parse(toolCall.function.arguments);
 
-    console.log("Summary generated:", summary.executive_summary.slice(0, 100) + "...");
+    console.log(`Summary generated via ${provider}:`, summary.executive_summary.slice(0, 100) + "...");
 
     // Insert summary
     const { error: summaryError } = await supabase
@@ -225,7 +259,7 @@ Write in a professional, journalistic tone. Be specific with facts—use actual 
         key_points: summary.key_points,
         analysis: summary.analysis,
         takeaways: summary.takeaways,
-        model_used: "google/gemini-3-flash-preview",
+        model_used: providerConfig.model,
         confidence_score: 0.85,
       }, {
         onConflict: "article_id",

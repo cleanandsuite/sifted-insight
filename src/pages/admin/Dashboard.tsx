@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminAnalytics, useRecentEvents } from '@/hooks/useAdminAnalytics';
@@ -7,6 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrapeControlCard } from '@/components/admin/ScrapeControlCard';
  import { ContentMixCard } from '@/components/admin/ContentMixCard';
+import { BulkSummarizeCard } from '@/components/admin/BulkSummarizeCard';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 import { 
   BarChart, 
   Bar, 
@@ -37,6 +41,26 @@ const Dashboard = () => {
   const { user, profile, isAdmin, loading: authLoading, signOut } = useAuth();
   const { data: analytics, isLoading: analyticsLoading, refetch } = useAdminAnalytics();
   const { data: recentEvents, isLoading: eventsLoading } = useRecentEvents(20);
+  
+  // Fetch pending article count
+  const { data: pendingCount, refetch: refetchPending } = useQuery({
+    queryKey: ['pending-articles-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('articles')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+      
+      if (error) throw error;
+      return count || 0;
+    },
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  const handleRefreshAll = useCallback(() => {
+    refetch();
+    refetchPending();
+  }, [refetch, refetchPending]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -71,10 +95,11 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Scrape Control */}
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-           <ScrapeControlCard onScrapeComplete={refetch} />
-           <ContentMixCard />
+        {/* Scrape & Summarize Controls */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <ScrapeControlCard onScrapeComplete={handleRefreshAll} />
+          <BulkSummarizeCard pendingCount={pendingCount || 0} onComplete={handleRefreshAll} />
+          <ContentMixCard />
         </div>
 
         {/* Stats Cards */}
