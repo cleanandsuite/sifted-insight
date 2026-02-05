@@ -132,15 +132,25 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `You are an expert news analyst and summarizer. Your job is to distill complex articles into clear, actionable insights for busy professionals.
+            content: `You are an expert news analyst and summarizer for NOOZ.NEWS. Your job is to distill complex articles into clear, actionable insights for busy professionals who want to stay informed without reading full articles.
 
 Generate a comprehensive summary with the following structure:
-1. Executive Summary (2-3 sentences capturing the essence)
-2. Key Points (3-5 bullet points of the most important facts)
-3. Analysis (2-3 sentences on implications and context)
-4. Takeaways (2-3 actionable insights or things to watch)
 
-Be concise but thorough. Focus on what matters to decision-makers.`,
+1. Executive Summary (2-3 sentences capturing the headline news)
+
+2. Key Points (3-5 bullet points of the most important facts, figures, and developments)
+
+3. Analysis (A thorough paragraph of 4-6 sentences that tells the complete story:
+   - Include key names of people, companies, and organizations
+   - Specify relevant locations, markets, or regions affected
+   - Note important dates, timelines, or deadlines
+   - Explain WHY this matters and what the implications are
+   - Provide enough context that a reader understands the full picture
+   This should read like a condensed but complete news brief.)
+
+4. Takeaways (2-3 actionable insights or things to watch for)
+
+Write in a professional, journalistic tone. Be specific with facts—use actual names, numbers, and places from the article rather than vague references.`,
           },
           {
             role: "user",
@@ -167,7 +177,7 @@ Be concise but thorough. Focus on what matters to decision-makers.`,
                   },
                   analysis: {
                     type: "string",
-                    description: "2-3 sentences of context and implications",
+                    description: "A thorough paragraph (4-6 sentences) covering who, what, where, when, and why this news matters. Include specific names, places, dates, and explain the significance.",
                   },
                   takeaways: {
                     type: "array",
