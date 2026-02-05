@@ -6,6 +6,7 @@ import { useAdminAnalytics, useRecentEvents } from '@/hooks/useAdminAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrapeControlCard } from '@/components/admin/ScrapeControlCard';
+ import { ContentMixCard } from '@/components/admin/ContentMixCard';
 import { 
   BarChart, 
   Bar, 
@@ -71,8 +72,9 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Scrape Control */}
-        <div className="mb-8">
-          <ScrapeControlCard onScrapeComplete={refetch} />
+         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+           <ScrapeControlCard onScrapeComplete={refetch} />
+           <ContentMixCard />
         </div>
 
         {/* Stats Cards */}
