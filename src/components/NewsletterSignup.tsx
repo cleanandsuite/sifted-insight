@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Mail, ArrowRight, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface NewsletterSignupProps {
   variant?: 'sidebar' | 'inline' | 'footer';
@@ -9,6 +11,7 @@ interface NewsletterSignupProps {
 export const NewsletterSignup = ({ variant = 'sidebar' }: NewsletterSignupProps) => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,15 +19,34 @@ export const NewsletterSignup = ({ variant = 'sidebar' }: NewsletterSignupProps)
 
     setStatus('loading');
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setStatus('success');
-    
-    // Reset after 3 seconds
-    setTimeout(() => {
-      setStatus('idle');
-      setEmail('');
-    }, 3000);
+    try {
+      const { data, error } = await supabase.functions.invoke('subscribe-newsletter', {
+        body: { email },
+      });
+      
+      if (error) throw error;
+      
+      setStatus('success');
+      toast({
+        title: "You're in!",
+        description: "Welcome to the NOOZ crew. Check your inbox soon.",
+      });
+      
+      // Reset after 3 seconds
+      setTimeout(() => {
+        setStatus('idle');
+        setEmail('');
+      }, 3000);
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      setStatus('error');
+      toast({
+        title: "Oops!",
+        description: "Something went wrong. Try again?",
+        variant: "destructive",
+      });
+      setTimeout(() => setStatus('idle'), 2000);
+    }
   };
 
   if (variant === 'inline') {
