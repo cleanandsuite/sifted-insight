@@ -1,5 +1,5 @@
  import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
- import { fetchAndParseFeed, FeedItem } from "./rss-parser.ts";
+import { fetchAndParseFeed } from "./rss-parser.ts";
  import { classifyArticle, getSourceCategory } from "./classifier.ts";
  import { calculateQuotas, calculateDistribution, hasRemainingQuota, recordScrapedArticle, CategoryQuota } from "./balancer.ts";
  import { ContentCategory, MAX_ARTICLES_PER_SOURCE, MAX_CONTENT_LENGTH, BASE_ARTICLES_PER_SCRAPE } from "./config.ts";

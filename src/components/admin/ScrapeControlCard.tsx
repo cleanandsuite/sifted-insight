@@ -14,17 +14,15 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
  
- type ContentCategory = 'tech' | 'finance' | 'politics' | 'climate';
+type ContentCategory = 'tech' | 'finance' | 'politics' | 'climate';
+type ScrapeCategory = 'all' | ContentCategory;
 
-const CATEGORIES = [
+const CATEGORIES: Array<{ value: ScrapeCategory; label: string }> = [
   { value: 'all', label: 'All Sources' },
-  { value: 'ai', label: 'AI & Tech' },
-  { value: 'apple', label: 'Apple' },
-  { value: 'tesla', label: 'Tesla' },
-  { value: 'crypto', label: 'Crypto' },
-  { value: 'climate', label: 'Climate' },
-  { value: 'politics', label: 'Politics' },
+  { value: 'tech', label: 'Tech' },
   { value: 'finance', label: 'Finance' },
+  { value: 'politics', label: 'Politics' },
+  { value: 'climate', label: 'Climate' },
 ];
 
 interface ScrapeResult {
@@ -46,7 +44,7 @@ interface ScrapeControlCardProps {
 }
 
 export const ScrapeControlCard = ({ onScrapeComplete }: ScrapeControlCardProps) => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState<ScrapeCategory>('all');
   const [isScraping, setIsScraping] = useState(false);
   const [progress, setProgress] = useState(0);
   const [scrapePhase, setScrapePhase] = useState('');
@@ -147,7 +145,7 @@ export const ScrapeControlCard = ({ onScrapeComplete }: ScrapeControlCardProps) 
           <label className="text-sm font-medium">Category</label>
           <Select
             value={selectedCategory}
-            onValueChange={setSelectedCategory}
+            onValueChange={(value) => setSelectedCategory(value as ScrapeCategory)}
             disabled={isScraping}
           >
             <SelectTrigger className="border-2 border-black">
