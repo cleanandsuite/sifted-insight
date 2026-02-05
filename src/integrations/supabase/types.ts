@@ -52,6 +52,10 @@ export type Database = {
       articles: {
         Row: {
           author: string | null
+          category_confidence: number | null
+          content_category:
+            | Database["public"]["Enums"]["content_category"]
+            | null
           created_at: string | null
           engagement_score: number | null
           id: string
@@ -75,6 +79,10 @@ export type Database = {
         }
         Insert: {
           author?: string | null
+          category_confidence?: number | null
+          content_category?:
+            | Database["public"]["Enums"]["content_category"]
+            | null
           created_at?: string | null
           engagement_score?: number | null
           id?: string
@@ -98,6 +106,10 @@ export type Database = {
         }
         Update: {
           author?: string | null
+          category_confidence?: number | null
+          content_category?:
+            | Database["public"]["Enums"]["content_category"]
+            | null
           created_at?: string | null
           engagement_score?: number | null
           id?: string
@@ -157,6 +169,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      content_ratio_config: {
+        Row: {
+          category: Database["public"]["Enums"]["content_category"]
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          sub_categories: Json | null
+          target_ratio: number
+          updated_at: string | null
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["content_category"]
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          sub_categories?: Json | null
+          target_ratio: number
+          updated_at?: string | null
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["content_category"]
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          sub_categories?: Json | null
+          target_ratio?: number
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       daily_analytics: {
         Row: {
@@ -280,8 +322,38 @@ export type Database = {
           },
         ]
       }
+      scrape_statistics: {
+        Row: {
+          articles_count: number | null
+          category: Database["public"]["Enums"]["content_category"]
+          created_at: string | null
+          id: string
+          ratio_achieved: number | null
+          scrape_date: string
+        }
+        Insert: {
+          articles_count?: number | null
+          category: Database["public"]["Enums"]["content_category"]
+          created_at?: string | null
+          id?: string
+          ratio_achieved?: number | null
+          scrape_date: string
+        }
+        Update: {
+          articles_count?: number | null
+          category?: Database["public"]["Enums"]["content_category"]
+          created_at?: string | null
+          id?: string
+          ratio_achieved?: number | null
+          scrape_date?: string
+        }
+        Relationships: []
+      }
       sources: {
         Row: {
+          content_category:
+            | Database["public"]["Enums"]["content_category"]
+            | null
           created_at: string | null
           description: string | null
           id: string
@@ -291,10 +363,14 @@ export type Database = {
           priority: Database["public"]["Enums"]["source_priority"] | null
           rss_url: string | null
           scrape_interval_minutes: number | null
+          sub_category: string | null
           updated_at: string | null
           website_url: string | null
         }
         Insert: {
+          content_category?:
+            | Database["public"]["Enums"]["content_category"]
+            | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -304,10 +380,14 @@ export type Database = {
           priority?: Database["public"]["Enums"]["source_priority"] | null
           rss_url?: string | null
           scrape_interval_minutes?: number | null
+          sub_category?: string | null
           updated_at?: string | null
           website_url?: string | null
         }
         Update: {
+          content_category?:
+            | Database["public"]["Enums"]["content_category"]
+            | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -317,6 +397,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["source_priority"] | null
           rss_url?: string | null
           scrape_interval_minutes?: number | null
+          sub_category?: string | null
           updated_at?: string | null
           website_url?: string | null
         }
@@ -416,6 +497,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_category_alignment_score: {
+        Args: { article_id: string }
+        Returns: number
+      }
+      calculate_topic_relevance_score: {
+        Args: { article_id: string }
+        Returns: number
+      }
       get_clustered_feed: {
         Args: { limit_count?: number }
         Returns: {
@@ -507,6 +596,7 @@ export type Database = {
         | "published"
         | "failed"
         | "archived"
+      content_category: "tech" | "finance" | "politics" | "climate"
       source_priority: "low" | "medium" | "high" | "critical"
     }
     CompositeTypes: {
@@ -650,6 +740,7 @@ export const Constants = {
         "failed",
         "archived",
       ],
+      content_category: ["tech", "finance", "politics", "climate"],
       source_priority: ["low", "medium", "high", "critical"],
     },
   },

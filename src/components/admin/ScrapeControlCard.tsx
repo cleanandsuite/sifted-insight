@@ -13,6 +13,8 @@ import { RefreshCw, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+ 
+ type ContentCategory = 'tech' | 'finance' | 'politics' | 'climate';
 
 const CATEGORIES = [
   { value: 'all', label: 'All Sources' },
@@ -27,10 +29,18 @@ const CATEGORIES = [
 
 interface ScrapeResult {
   source: string;
+   category: ContentCategory | null;
   articlesFound: number;
   articlesAdded: number;
 }
 
+ interface CategoryBreakdown {
+   tech: number;
+   finance: number;
+   politics: number;
+   climate: number;
+ }
+ 
 interface ScrapeControlCardProps {
   onScrapeComplete?: () => void;
 }
@@ -42,6 +52,7 @@ export const ScrapeControlCard = ({ onScrapeComplete }: ScrapeControlCardProps) 
   const [scrapePhase, setScrapePhase] = useState('');
   const [lastResults, setLastResults] = useState<ScrapeResult[] | null>(null);
   const [lastScrapeTime, setLastScrapeTime] = useState<Date | null>(null);
+   const [categoryBreakdown, setCategoryBreakdown] = useState<CategoryBreakdown | null>(null);
 
   const handleScrape = async () => {
     setIsScraping(true);
@@ -103,6 +114,7 @@ export const ScrapeControlCard = ({ onScrapeComplete }: ScrapeControlCardProps) 
         setScrapePhase('Complete!');
         setLastResults(result.results || []);
         setLastScrapeTime(new Date());
+         setCategoryBreakdown(result.categoryBreakdown || null);
         toast.success(`Scraping complete! Added ${result.totalArticlesAdded} articles`);
         onScrapeComplete?.();
       } else {
@@ -188,6 +200,22 @@ export const ScrapeControlCard = ({ onScrapeComplete }: ScrapeControlCardProps) 
             <span>Last run: {lastScrapeTime.toLocaleTimeString()}</span>
           </div>
         )}
+ 
+       {/* Category Breakdown */}
+       {categoryBreakdown && totalArticlesAdded > 0 && (
+         <div className="grid grid-cols-4 gap-2 pt-2 border-t-2 border-black">
+           {(['tech', 'finance', 'politics', 'climate'] as ContentCategory[]).map((cat) => (
+             <div key={cat} className="text-center p-2 bg-muted border border-black">
+               <div className="text-lg font-bold">
+                 {categoryBreakdown[cat] || 0}
+               </div>
+               <div className="text-xs capitalize text-muted-foreground">
+                 {cat}
+               </div>
+             </div>
+           ))}
+         </div>
+       )}
 
         {/* Results Summary */}
         {lastResults && lastResults.length > 0 && (
@@ -204,7 +232,20 @@ export const ScrapeControlCard = ({ onScrapeComplete }: ScrapeControlCardProps) 
                   key={index}
                   className="flex items-center justify-between text-sm p-2 bg-muted border border-black"
                 >
-                  <span className="font-medium truncate flex-1">{result.source}</span>
+                   <div className="flex items-center gap-2 flex-1 min-w-0">
+                     <span className="font-medium truncate">{result.source}</span>
+                     {result.category && (
+                       <span className={cn(
+                         "text-xs px-1.5 py-0.5 rounded border border-black",
+                         result.category === 'tech' ? 'bg-primary/10 text-primary' :
+                         result.category === 'finance' ? 'bg-emerald-500/10 text-emerald-600' :
+                         result.category === 'politics' ? 'bg-violet-500/10 text-violet-600' :
+                         'bg-green-500/10 text-green-600'
+                       )}>
+                         {result.category}
+                       </span>
+                     )}
+                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <span>{result.articlesFound} found</span>
                     <span>•</span>
