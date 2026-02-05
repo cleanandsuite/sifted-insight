@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useSearchParams, useLocation } from 'react-router-dom';
 import { StatusBar } from '@/components/StatusBar';
 import { Header } from '@/components/Header';
@@ -8,36 +7,26 @@ import { Sidebar } from '@/components/Sidebar';
 import { SkeletonCard, SkeletonHero } from '@/components/SkeletonCard';
 import { Footer } from '@/components/Footer';
 import { CategoryNav } from '@/components/CategoryNav';
-import { useArticles, type Article } from '@/hooks/useArticles';
+import { useArticlesWithDiversity, type Article } from '@/hooks/useArticles';
 import { usePageViewTracking } from '@/hooks/useAnalytics';
 
-const ARTICLES_PER_PAGE = 8;
-
 const Index = () => {
-  const { featuredArticle, regularArticles, loading, error, refetch } = useArticles();
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  const [visibleCount, setVisibleCount] = useState(ARTICLES_PER_PAGE);
+  const categoryFilter = searchParams.get('category');
+  
+  const {
+    featuredArticle,
+    articles,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    loadMore,
+  } = useArticlesWithDiversity(categoryFilter);
   
   // Track page views
   usePageViewTracking(location.pathname);
-  
-  const categoryFilter = searchParams.get('category');
-
-  // Filter articles by category if specified
-  const filteredArticles = categoryFilter && categoryFilter !== 'all' && categoryFilter !== 'trending'
-    ? regularArticles.filter(article => 
-        article.topic === categoryFilter || 
-        article.tags.includes(categoryFilter)
-      )
-    : regularArticles;
-
-  const displayedArticles = filteredArticles.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredArticles.length;
-
-  const loadMore = () => {
-    setVisibleCount(prev => prev + ARTICLES_PER_PAGE);
-  };
 
   // Show error state if Supabase fails
   if (error) {
@@ -76,7 +65,7 @@ const Index = () => {
                     : 'Latest Stories'}
                 </h2>
                 <span className="terminal-text text-muted-foreground">
-                  {loading ? '...' : `${filteredArticles.length} articles`}
+                  {loading ? '...' : `${articles.length} articles`}
                 </span>
               </div>
               
@@ -88,8 +77,8 @@ const Index = () => {
                     <SkeletonCard />
                     <SkeletonCard />
                   </>
-                ) : displayedArticles.length > 0 ? (
-                  displayedArticles.map((article: Article, index: number) => (
+                ) : articles.length > 0 ? (
+                  articles.map((article: Article, index: number) => (
                     <ArticleCard 
                       key={article.id} 
                       article={article} 
@@ -105,16 +94,31 @@ const Index = () => {
                     </p>
                   </div>
                 )}
+                {loadingMore && (
+                  <>
+                    <SkeletonCard />
+                    <SkeletonCard />
+                  </>
+                )}
               </div>
               
               {/* Load More Button */}
-              {hasMore && !loading && (
+              {!loading && articles.length > 0 && (
                 <div className="mt-8 text-center">
                   <button
                     onClick={loadMore}
-                    className="px-6 py-3 border border-border-strong hover:bg-card-hover transition-colors font-mono text-sm uppercase tracking-wider"
+                    disabled={!hasMore || loadingMore}
+                    className={`px-6 py-3 border border-border-strong transition-colors font-mono text-sm uppercase tracking-wider ${
+                      hasMore && !loadingMore
+                        ? 'hover:bg-card-hover cursor-pointer'
+                        : 'opacity-60 cursor-default'
+                    }`}
                   >
-                    Load More Articles
+                    {loadingMore 
+                      ? 'Loading...' 
+                      : hasMore 
+                        ? 'Load More Articles' 
+                        : 'End of the Road'}
                   </button>
                 </div>
               )}
@@ -122,7 +126,7 @@ const Index = () => {
             
             {/* Sidebar */}
             <div className="w-full lg:w-80 flex-shrink-0">
-              <Sidebar suggestedArticles={regularArticles} />
+              <Sidebar suggestedArticles={articles} />
             </div>
           </div>
         </section>
