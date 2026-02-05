@@ -4,6 +4,7 @@ import { Article } from '@/hooks/useArticles';
 import { ReadTimeComparison } from './ReadTimeComparison';
 import { BookmarkButton } from './BookmarkButton';
 import { SourceBadge } from './SourceBadge';
+ import { ArticleImage } from './ArticleImage';
 import { timeAgo } from '@/lib/timeAgo';
 
 interface ArticleCardProps {
@@ -22,10 +23,11 @@ export const ArticleCard = ({ article, index }: ArticleCardProps) => {
         <article className="card-brutal h-full flex flex-col">
           {/* Image */}
           <div className="relative aspect-video overflow-hidden border-b border-border-strong">
-            <img
-              src={article.mediaUrl}
+             <ArticleImage
+               src={article.mediaUrl}
               alt={article.originalTitle}
-              className="w-full h-full object-cover"
+               source={article.sourcePublication}
+               category={article.tags[0] || article.topic}
             />
             {/* Bookmark button overlay */}
             <div className="absolute top-2 right-2">
