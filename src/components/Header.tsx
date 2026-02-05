@@ -3,6 +3,14 @@ import { motion } from 'framer-motion';
 import { TrendingUp } from 'lucide-react';
 import { DarkModeToggle } from './DarkModeToggle';
 
+export const Logo = ({ className = '' }: { className?: string }) => (
+  <div className={`flex items-center font-mono text-xl font-black tracking-tight ${className}`}>
+    <span className="text-primary font-black">NOOZ</span>
+    <span className="text-muted-foreground mx-0.5">•</span>
+    <span className="text-muted-foreground font-medium">NEWS</span>
+  </div>
+);
+
 export const Header = () => {
   return (
     <motion.header 
@@ -13,11 +21,7 @@ export const Header = () => {
     >
       <div className="container flex items-center justify-between py-4">
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="flex items-center font-mono text-xl font-black tracking-tight">
-            <span className="text-foreground">NOOZ</span>
-            <span className="text-primary mx-0.5">•</span>
-            <span className="text-muted-foreground">NEWS</span>
-          </div>
+          <Logo />
         </Link>
         
         <nav className="hidden md:flex items-center gap-8">
