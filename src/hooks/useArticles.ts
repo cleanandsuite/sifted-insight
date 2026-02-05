@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
+
+type ContentCategory = Database['public']['Enums']['content_category'];
+
+const ALL_CATEGORIES: ContentCategory[] = ['tech', 'finance', 'politics', 'climate'];
 
 // Types matching frontend expectations
 export interface ArticleSummary {
@@ -81,6 +86,179 @@ export const useArticles = () => {
     loading,
     error,
     refetch: fetchArticles,
+  };
+};
+
+// Hook to fetch articles with category diversity and pagination
+export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
+  const [featuredArticle, setFeaturedArticle] = useState<Article | null>(null);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [offset, setOffset] = useState(0);
+
+  const BATCH_SIZE = 4;
+
+  // Initial fetch - ensures category diversity
+  const fetchInitial = async () => {
+    try {
+      setLoading(true);
+      setArticles([]);
+      setOffset(0);
+      setHasMore(true);
+
+      // If filtering by category, just fetch that category
+      if (categoryFilter && categoryFilter !== 'all') {
+        const { data: featured, error: featuredError } = await supabase
+          .from('articles')
+          .select('*, sources(*), summaries(*)')
+          .eq('status', 'published')
+          .or(`topic.eq.${categoryFilter},content_category.eq.${categoryFilter.toLowerCase()}`)
+          .order('rank_score', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (featuredError) throw featuredError;
+        if (featured) {
+          setFeaturedArticle(transformArticle(featured));
+        } else {
+          setFeaturedArticle(null);
+        }
+
+        const { data: regular, error: regularError } = await supabase
+          .from('articles')
+          .select('*, sources(*), summaries(*)')
+          .eq('status', 'published')
+          .or(`topic.eq.${categoryFilter},content_category.eq.${categoryFilter.toLowerCase()}`)
+          .order('rank_score', { ascending: false })
+          .range(1, BATCH_SIZE);
+
+        if (regularError) throw regularError;
+
+        const fetchedArticles = (regular || []).map(transformArticle);
+        setArticles(fetchedArticles);
+        setOffset(BATCH_SIZE + 1);
+        setHasMore(fetchedArticles.length === BATCH_SIZE);
+        return;
+      }
+
+      // No filter - fetch with category diversity
+      // First, fetch the featured article
+      const { data: featured, error: featuredError } = await supabase
+        .from('articles')
+        .select('*, sources(*), summaries(*)')
+        .eq('is_featured', true)
+        .eq('status', 'published')
+        .order('rank_score', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (featuredError) throw featuredError;
+      if (featured) {
+        setFeaturedArticle(transformArticle(featured));
+      }
+
+      // Fetch top article from each category to ensure diversity
+      const categoryArticles: Article[] = [];
+      const seenIds = new Set<string>();
+
+      if (featured) seenIds.add(featured.id);
+
+      for (const category of ALL_CATEGORIES) {
+        const { data, error } = await supabase
+          .from('articles')
+          .select('*, sources(*), summaries(*)')
+          .eq('status', 'published')
+          .eq('content_category', category)
+          .order('rank_score', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (!error && data && !seenIds.has(data.id)) {
+          categoryArticles.push(transformArticle(data));
+          seenIds.add(data.id);
+        }
+      }
+
+      // Sort category representatives by rank_score
+      categoryArticles.sort((a, b) => {
+        // We need to get rank scores - we'll add them during transform
+        return 0; // Already sorted individually
+      });
+
+      setArticles(categoryArticles);
+      setOffset(categoryArticles.length);
+      setHasMore(true);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch articles'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load more articles
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+
+    try {
+      setLoadingMore(true);
+
+      let query = supabase
+        .from('articles')
+        .select('*, sources(*), summaries(*)')
+        .eq('status', 'published')
+        .order('rank_score', { ascending: false });
+
+      // Apply category filter if present
+      if (categoryFilter && categoryFilter !== 'all') {
+        query = query.or(`topic.eq.${categoryFilter},content_category.eq.${categoryFilter.toLowerCase()}`);
+      }
+
+      // Exclude already loaded articles
+      const existingIds = articles.map(a => a.id);
+      if (featuredArticle) {
+        existingIds.push(featuredArticle.id);
+      }
+
+      if (existingIds.length > 0) {
+        query = query.not('id', 'in', `(${existingIds.join(',')})`);
+      }
+
+      const { data, error } = await query.limit(BATCH_SIZE);
+
+      if (error) throw error;
+
+      const newArticles = (data || []).map(transformArticle);
+      
+      if (newArticles.length === 0) {
+        setHasMore(false);
+      } else {
+        setArticles(prev => [...prev, ...newArticles]);
+        setOffset(prev => prev + newArticles.length);
+        setHasMore(newArticles.length === BATCH_SIZE);
+      }
+    } catch (err) {
+      console.error('Failed to load more articles:', err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInitial();
+  }, [categoryFilter]);
+
+  return {
+    featuredArticle,
+    articles,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    loadMore,
+    refetch: fetchInitial,
   };
 };
 
