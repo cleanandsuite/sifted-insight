@@ -13,17 +13,10 @@ export const Header = () => {
     >
       <div className="container flex items-center justify-between py-4">
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="flex items-center">
-            {/* NOOZ - dark on light / light on dark */}
-            <span className="font-mono text-xl font-black tracking-tighter bg-foreground text-background px-2 py-0.5">
-              NOOZ
-            </span>
-            {/* NEWS - inverse: light on dark / dark on light */}
-            <span className="font-mono text-xl font-black tracking-tighter bg-background text-foreground px-2 py-0.5 border border-foreground -ml-px">
-              .NEWS
-            </span>
-            {/* Pulsing indicator */}
-            <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse ml-1" />
+          <div className="flex items-center font-mono text-xl font-black tracking-tight">
+            <span className="text-foreground">NOOZ</span>
+            <span className="text-primary mx-0.5">•</span>
+            <span className="text-muted-foreground">NEWS</span>
           </div>
         </Link>
         
