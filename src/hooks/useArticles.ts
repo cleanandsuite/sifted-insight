@@ -100,6 +100,7 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
   const [offset, setOffset] = useState(0);
 
   const BATCH_SIZE = 4;
+  const INITIAL_LOAD = 10;
 
   // Initial fetch - ensures category diversity
   const fetchInitial = async () => {
@@ -133,14 +134,14 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
           .eq('status', 'published')
           .or(`topic.eq.${categoryFilter},content_category.eq.${categoryFilter.toLowerCase()}`)
           .order('rank_score', { ascending: false })
-          .range(1, BATCH_SIZE);
+          .range(1, INITIAL_LOAD);
 
         if (regularError) throw regularError;
 
         const fetchedArticles = (regular || []).map(transformArticle);
         setArticles(fetchedArticles);
-        setOffset(BATCH_SIZE + 1);
-        setHasMore(fetchedArticles.length === BATCH_SIZE);
+        setOffset(INITIAL_LOAD + 1);
+        setHasMore(fetchedArticles.length === INITIAL_LOAD);
         return;
       }
 
@@ -160,12 +161,12 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
         setFeaturedArticle(transformArticle(featured));
       }
 
-      // Fetch top article from each category to ensure diversity
-      const categoryArticles: Article[] = [];
+      // Fetch top articles ensuring at least one from each category
       const seenIds = new Set<string>();
-
       if (featured) seenIds.add(featured.id);
 
+      // First, get one article from each category for diversity
+      const categoryArticles: Article[] = [];
       for (const category of ALL_CATEGORIES) {
         const { data, error } = await supabase
           .from('articles')
@@ -182,11 +183,27 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
         }
       }
 
-      // Sort category representatives by rank_score
-      categoryArticles.sort((a, b) => {
-        // We need to get rank scores - we'll add them during transform
-        return 0; // Already sorted individually
-      });
+      // Now fetch more articles by ranking to reach at least INITIAL_LOAD
+      const remaining = INITIAL_LOAD - categoryArticles.length;
+      if (remaining > 0) {
+        const excludeIds = Array.from(seenIds);
+        const { data: moreArticles, error: moreError } = await supabase
+          .from('articles')
+          .select('*, sources(*), summaries(*)')
+          .eq('status', 'published')
+          .not('id', 'in', `(${excludeIds.join(',')})`)
+          .order('rank_score', { ascending: false })
+          .limit(remaining);
+
+        if (!moreError && moreArticles) {
+          for (const article of moreArticles) {
+            if (!seenIds.has(article.id)) {
+              categoryArticles.push(transformArticle(article));
+              seenIds.add(article.id);
+            }
+          }
+        }
+      }
 
       setArticles(categoryArticles);
       setOffset(categoryArticles.length);
