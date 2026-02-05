@@ -1,5 +1,6 @@
  import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 import { fetchAndParseFeed } from "./rss-parser.ts";
+import { fetchOgImage } from "./feed/og-image.ts";
  import { classifyArticle, getSourceCategory } from "./classifier.ts";
  import { calculateQuotas, calculateDistribution, hasRemainingQuota, recordScrapedArticle, CategoryQuota } from "./balancer.ts";
  import { ContentCategory, MAX_ARTICLES_PER_SOURCE, MAX_CONTENT_LENGTH, BASE_ARTICLES_PER_SCRAPE } from "./config.ts";
@@ -323,6 +324,19 @@ Deno.serve(async (req) => {
                }
              }
 
+             // Get image URL - from RSS or fetch og:image from article page
+             let imageUrl = item.imageUrl;
+             if (!imageUrl && item.link) {
+               try {
+                 imageUrl = await fetchOgImage(item.link);
+                 if (imageUrl) {
+                   console.log(`Fetched og:image for: ${sanitizedTitle.slice(0, 50)}...`);
+                 }
+               } catch {
+                 // Silently fail - og:image is optional
+               }
+             }
+
             // Insert article
             const { data: newArticle, error: insertError } = await supabase
               .from("articles")
@@ -332,7 +346,7 @@ Deno.serve(async (req) => {
                  original_url: item.link,
                 source_id: source.id,
                  summary: sanitizedDescription.slice(0, 500) + (sanitizedDescription.length > 500 ? "..." : ""),
-                 image_url: item.imageUrl,
+                 image_url: imageUrl,
                 author: sanitizedAuthor,
                  published_at: publishedAt,
                 original_read_time: originalReadTime,
