@@ -115,31 +115,38 @@
  /**
   * Get the primary category from source metadata if available
   */
- export function getSourceCategory(sourceName: string, sourceCategory?: ContentCategory): ContentCategory | null {
-   if (sourceCategory) {
-     return sourceCategory;
-   }
-   
-   // Fallback: try to infer from source name
-   const lowerName = sourceName.toLowerCase();
-   
-   if (lowerName.includes('tech') || lowerName.includes('wired') || lowerName.includes('verge') || 
-       lowerName.includes('ars') || lowerName.includes('engadget') || lowerName.includes('cnet')) {
-     return 'tech';
-   }
-   
-   if (lowerName.includes('bloomberg') || lowerName.includes('wsj') || lowerName.includes('financial') ||
-       lowerName.includes('cnbc') || lowerName.includes('market')) {
-     return 'finance';
-   }
-   
-   if (lowerName.includes('politico') || lowerName.includes('hill') || lowerName.includes('politics')) {
-     return 'politics';
-   }
-   
-   if (lowerName.includes('climate') || lowerName.includes('environment') || lowerName.includes('e360')) {
-     return 'climate';
-   }
-   
-   return null;
- }
+export function getSourceCategory(sourceName: string, sourceCategory?: ContentCategory): ContentCategory | null {
+  if (sourceCategory) {
+    return sourceCategory;
+  }
+  
+  // Fallback: try to infer from source name
+  const lowerName = sourceName.toLowerCase();
+  
+  // Check video games first (more specific)
+  if (lowerName.includes('gaming') || lowerName.includes('polygon') || lowerName.includes('ign') ||
+      lowerName.includes('eurogamer') || lowerName.includes('kotaku') || lowerName.includes('gamespot') ||
+      lowerName.includes('pc gamer')) {
+    return 'video_games';
+  }
+  
+  if (lowerName.includes('tech') || lowerName.includes('wired') || lowerName.includes('verge') || 
+      lowerName.includes('ars') || lowerName.includes('engadget') || lowerName.includes('cnet')) {
+    return 'tech';
+  }
+  
+  if (lowerName.includes('bloomberg') || lowerName.includes('wsj') || lowerName.includes('financial') ||
+      lowerName.includes('cnbc') || lowerName.includes('market')) {
+    return 'finance';
+  }
+  
+  if (lowerName.includes('politico') || lowerName.includes('hill') || lowerName.includes('politics')) {
+    return 'politics';
+  }
+  
+  if (lowerName.includes('climate') || lowerName.includes('environment') || lowerName.includes('e360')) {
+    return 'climate';
+  }
+  
+  return null;
+}

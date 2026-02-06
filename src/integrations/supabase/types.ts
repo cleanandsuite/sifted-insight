@@ -596,7 +596,12 @@ export type Database = {
         | "published"
         | "failed"
         | "archived"
-      content_category: "tech" | "finance" | "politics" | "climate"
+      content_category:
+        | "tech"
+        | "finance"
+        | "politics"
+        | "climate"
+        | "video_games"
       source_priority: "low" | "medium" | "high" | "critical"
     }
     CompositeTypes: {
@@ -740,7 +745,13 @@ export const Constants = {
         "failed",
         "archived",
       ],
-      content_category: ["tech", "finance", "politics", "climate"],
+      content_category: [
+        "tech",
+        "finance",
+        "politics",
+        "climate",
+        "video_games",
+      ],
       source_priority: ["low", "medium", "high", "critical"],
     },
   },
