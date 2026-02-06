@@ -6,7 +6,7 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
-  console.log("share-meta function called", req.url);
+  console.log("share-meta function invoked", req.url);
   
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -49,13 +49,13 @@ Deno.serve(async (req) => {
     }
 
     // Determine the best image to use
-    const imageUrl = article.media_url || article.image_url || "https://sifted-insight.lovable.app/og-image.png";
-    const siteName = "NOOZ•NEWS";
-    const siteUrl = "https://sifted-insight.lovable.app";
+    const imageUrl = article.media_url || article.image_url || "https://nooz.news/og-image.png";
+    const siteName = "NOOZ.NEWS";
+    const siteUrl = "https://nooz.news";
     const articleUrl = `${siteUrl}/article/${article.id}`;
     const description = article.summary || `Read the latest on ${article.topic || 'trending news'} from ${siteName}`;
-    const authorName = article.author || "NOOZ•NEWS Staff";
-    const sourceName = article.sources?.name || siteName;
+    const authorName = article.author || "NOOZ.NEWS Staff";
+    const sourceName = (article.sources as any)?.name || siteName;
     const publishedDate = article.published_at ? new Date(article.published_at).toISOString() : new Date().toISOString();
     const tags = article.tags?.join(", ") || article.topic || "news";
 
@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
   <meta name="twitter:title" content="${escapeHtml(article.title)}">
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${imageUrl}">
-  <meta name="twitter:site" content="@noozdotnews">
+  <meta name="twitter:site" content="@NoozNews">
   
   <!-- Canonical -->
   <link rel="canonical" href="${articleUrl}">

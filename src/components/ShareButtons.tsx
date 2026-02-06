@@ -12,32 +12,42 @@ export const ShareButtons = ({ title, url, articleId }: ShareButtonsProps) => {
   const [copied, setCopied] = useState(false);
   const { trackShare } = useAnalytics();
   
-  // Use the actual article URL for sharing - meta tags are now handled client-side via react-helmet
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://nooz.news';
+  // For social platforms that need server-rendered OG tags, use the share-meta edge function
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://hqjszktwczdnyyomllzd.supabase.co';
+  const siteUrl = 'https://nooz.news';
   
-  // Direct article URL for all sharing
-  const shareUrl = articleId 
-    ? `${baseUrl}/article/${articleId}`
+  // Share-meta URL for crawlers (Facebook, LinkedIn) - serves server-rendered OG tags
+  const shareMetaUrl = articleId 
+    ? `${supabaseUrl}/functions/v1/share-meta?id=${articleId}`
     : (url || (typeof window !== 'undefined' ? window.location.href : ''));
   
-  const encodedUrl = encodeURIComponent(shareUrl);
+  // Direct article URL for Twitter (handles client-side meta better)
+  const directUrl = articleId 
+    ? `${siteUrl}/article/${articleId}`
+    : (url || (typeof window !== 'undefined' ? window.location.href : ''));
+  
+  const encodedShareMetaUrl = encodeURIComponent(shareMetaUrl);
+  const encodedDirectUrl = encodeURIComponent(directUrl);
   const encodedTitle = encodeURIComponent(title);
 
   const shareLinks = [
     {
       name: 'Twitter',
       icon: Twitter,
-      url: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
+      // Twitter handles client-side meta tags better, use direct URL
+      url: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedDirectUrl}`,
     },
     {
       name: 'Facebook',
       icon: Facebook,
-      url: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+      // Facebook needs server-rendered OG tags, use share-meta endpoint
+      url: `https://www.facebook.com/sharer/sharer.php?u=${encodedShareMetaUrl}`,
     },
     {
       name: 'LinkedIn',
       icon: Linkedin,
-      url: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}`,
+      // LinkedIn needs server-rendered OG tags, use share-meta endpoint
+      url: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedShareMetaUrl}&title=${encodedTitle}`,
     },
   ];
 
@@ -50,7 +60,7 @@ export const ShareButtons = ({ title, url, articleId }: ShareButtonsProps) => {
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(directUrl);
       setCopied(true);
       if (articleId) {
         trackShare(articleId, 'copy_link');

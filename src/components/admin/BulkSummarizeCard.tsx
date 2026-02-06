@@ -60,7 +60,7 @@
              'Authorization': `Bearer ${session.access_token}`,
              'Content-Type': 'application/json',
            },
-           body: JSON.stringify({ limit: 20 }),
+            body: JSON.stringify({ limit: 100 }),
          }
        );
  
@@ -138,7 +138,7 @@
            ) : (
              <>
                <Sparkles className="w-4 h-4 mr-2" />
-               Summarize {Math.min(pendingCount, 20)} Articles
+               Summarize {Math.min(pendingCount, 100)} Articles
              </>
            )}
          </Button>
@@ -171,7 +171,7 @@
  
          {/* Help text */}
          <p className="text-xs text-muted-foreground">
-           Processes up to 20 pending articles in parallel using your MiniMax M2.1 API key for faster summarization.
+           Processes up to 100 pending articles in parallel using MiniMax M2.1 with Firecrawl content fetching.
          </p>
        </CardContent>
      </Card>
