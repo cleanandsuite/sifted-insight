@@ -5,7 +5,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 // ============================================================================
 // TYPES
@@ -83,24 +83,8 @@ export const useSearch = (): UseSearchReturn => {
     },
   });
 
-  // Parse URL params on mount
-  useEffect(() => {
-    const query = searchParams.get('q');
-    const page = parseInt(searchParams.get('page') || '1');
-    const sortBy = (searchParams.get('sort') as SearchFilters['sortBy']) || 'relevance';
-
-    if (query) {
-      setState((prev) => ({
-        ...prev,
-        query,
-        page,
-        filters: { ...prev.filters, sortBy },
-      }));
-      searchArticles(query, { sortBy }, page);
-    }
-  }, []);
-
-  const searchArticles = async (
+  // Search function
+  const searchArticles = useCallback(async (
     query: string,
     filters: SearchFilters = {},
     page: number = 1
@@ -124,26 +108,37 @@ export const useSearch = (): UseSearchReturn => {
     }));
 
     try {
-      const { data, error } = await supabase.rpc('search_articles', {
-        query_text: query,
-        page_num: page,
-        page_size: state.pageSize,
-        status_filter: filters.status || 'published',
-        source_filter: filters.sourceId || null,
-        date_from: filters.dateFrom || null,
-        date_to: filters.dateTo || null,
-        sort_by: filters.sortBy || 'relevance',
-      });
+      // Use basic text search on articles table
+      const { data, error, count } = await supabase
+        .from('articles')
+        .select('*', { count: 'exact' })
+        .eq('status', 'published')
+        .ilike('title', `%${query}%`)
+        .order('published_at', { ascending: false })
+        .range((page - 1) * state.pageSize, page * state.pageSize - 1);
 
       if (error) throw error;
 
-      const results = (data || []) as SearchResult[];
+      const results = (data || []).map(article => ({
+        id: article.id,
+        title: article.title,
+        executive_summary: article.summary || '',
+        original_url: article.original_url,
+        source_id: article.source_id || '',
+        source_name: '',
+        author: article.author || '',
+        published_at: article.published_at || '',
+        rank_score: article.rank_score || 0,
+        relevance_score: 0,
+        tags: article.tags || [],
+      })) as SearchResult[];
       
       setState((prev) => ({
         ...prev,
         results: page === 1 ? results : [...prev.results, ...results],
-        totalCount: results.length > 0 ? (results[0] as any)?.total_count || prev.totalCount : prev.totalCount,
+        totalCount: count || results.length,
         page,
+        loading: false,
       }));
 
       // Update URL
@@ -159,20 +154,33 @@ export const useSearch = (): UseSearchReturn => {
       setState((prev) => ({
         ...prev,
         error: error instanceof Error ? error : new Error('Search failed'),
-      }));
-    } finally {
-      setState((prev) => ({
-        ...prev,
         loading: false,
       }));
     }
-  };
+  }, [state.pageSize, setSearchParams]);
+
+  // Parse URL params on mount
+  useEffect(() => {
+    const query = searchParams.get('q');
+    const page = parseInt(searchParams.get('page') || '1');
+    const sortBy = (searchParams.get('sort') as SearchFilters['sortBy']) || 'relevance';
+
+    if (query) {
+      setState((prev) => ({
+        ...prev,
+        query,
+        page,
+        filters: { ...prev.filters, sortBy },
+      }));
+      searchArticles(query, { sortBy }, page);
+    }
+  }, []);
 
   const loadMore = useCallback(async () => {
     if (state.loading || state.results.length >= state.totalCount) return;
     
     await searchArticles(state.query, state.filters, state.page + 1);
-  }, [state.query, state.filters, state.page, state.loading, state.results.length, state.totalCount]);
+  }, [state.query, state.filters, state.page, state.loading, state.results.length, state.totalCount, searchArticles]);
 
   const clearSearch = useCallback(() => {
     setState({
@@ -187,17 +195,17 @@ export const useSearch = (): UseSearchReturn => {
       filters: { sortBy: 'relevance' },
     });
     setSearchParams({}, { replace: true });
-  }, []);
+  }, [setSearchParams]);
 
   const setFilters = useCallback((filters: SearchFilters) => {
     setState((prev) => ({
       ...prev,
       filters: { ...prev.filters, ...filters },
-      page: 1, // Reset to page 1 when filters change
-      results: [], // Clear results for fresh search
+      page: 1,
+      results: [],
     }));
     searchArticles(state.query, { ...state.filters, ...filters }, 1);
-  }, [state.query, state.filters]);
+  }, [state.query, state.filters, searchArticles]);
 
   const getSuggestions = useCallback(async (query: string) => {
     if (!query.trim() || query.length < 2) {
@@ -206,14 +214,17 @@ export const useSearch = (): UseSearchReturn => {
     }
 
     try {
-      const { data, error } = await supabase.rpc('search_suggestions', {
-        query_text: query,
-        limit_count: 10,
-      });
+      // Get suggestions from article titles
+      const { data, error } = await supabase
+        .from('articles')
+        .select('title')
+        .eq('status', 'published')
+        .ilike('title', `%${query}%`)
+        .limit(10);
 
       if (error) throw error;
       
-      const suggestions = (data || []).map((item: any) => item.suggestion);
+      const suggestions = (data || []).map((item) => item.title);
       setState((prev) => ({ ...prev, suggestions: suggestions.slice(0, 10) }));
     } catch (error) {
       console.error('Failed to get suggestions:', error);
@@ -249,14 +260,31 @@ export const useSimpleSearch = () => {
     setError(null);
 
     try {
-      const { data, error: rpcError } = await supabase.rpc('search_articles_simple', {
-        query_text: query,
-        limit_count: limit,
-        offset_count: offset,
-      });
+      const { data, error: queryError } = await supabase
+        .from('articles')
+        .select('*')
+        .eq('status', 'published')
+        .ilike('title', `%${query}%`)
+        .order('published_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
-      if (rpcError) throw rpcError;
-      setResults((data || []) as SearchResult[]);
+      if (queryError) throw queryError;
+      
+      const mappedResults = (data || []).map(article => ({
+        id: article.id,
+        title: article.title,
+        executive_summary: article.summary || '',
+        original_url: article.original_url,
+        source_id: article.source_id || '',
+        source_name: '',
+        author: article.author || '',
+        published_at: article.published_at || '',
+        rank_score: article.rank_score || 0,
+        relevance_score: 0,
+        tags: article.tags || [],
+      })) as SearchResult[];
+      
+      setResults(mappedResults);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Search failed'));
     } finally {
@@ -291,13 +319,16 @@ export const useSearchSuggestions = (debounceMs = 300) => {
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase.rpc('search_suggestions', {
-          query_text: query,
-          limit_count: 10,
-        });
+        const { data, error } = await supabase
+          .from('articles')
+          .select('title')
+          .eq('status', 'published')
+          .ilike('title', `%${query}%`)
+          .limit(10);
 
         if (error) throw error;
-        const uniqueSuggestions = [...new Set((data || []).map((item: any) => item.suggestion))];
+        
+        const uniqueSuggestions = [...new Set((data || []).map((item) => item.title))];
         setSuggestions(uniqueSuggestions.slice(0, 10));
       } catch (err) {
         console.error('Suggestions error:', err);
@@ -333,12 +364,27 @@ export const useRelatedArticles = (articleId: string | undefined) => {
 
       try {
         const { data, error: rpcError } = await supabase.rpc('get_related_articles', {
-          article_uuid: articleId,
+          article_id: articleId,
           limit_count: 5,
         });
 
         if (rpcError) throw rpcError;
-        setArticles((data || []) as SearchResult[]);
+        
+        const mappedResults = (data || []).map((article: { id: string; title: string; original_url: string; author: string; published_at: string; rank_score: number; source_id: string; tags: string[]; topic: string }) => ({
+          id: article.id,
+          title: article.title,
+          executive_summary: '',
+          original_url: article.original_url,
+          source_id: article.source_id || '',
+          source_name: '',
+          author: article.author || '',
+          published_at: article.published_at || '',
+          rank_score: article.rank_score || 0,
+          relevance_score: 0,
+          tags: article.tags || [],
+        })) as SearchResult[];
+        
+        setArticles(mappedResults);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Failed to fetch related articles'));
       } finally {

@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -19,10 +18,28 @@ import {
 } from 'lucide-react';
 import { useSavedArticles } from '@/hooks/useSavedArticles';
 import { useReadingHistory } from '@/hooks/useReadingHistory';
-import { ArticleCard } from '@/components/ArticleCard';
+
+// Simple article display component
+function SimpleArticleCard({ article }: { article: { id: string; title: string; original_url: string; published_at?: string } }) {
+  return (
+    <a 
+      href={article.original_url} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="block p-4 border border-border rounded-lg bg-card hover:bg-accent transition-colors"
+    >
+      <h3 className="font-medium line-clamp-2">{article.title}</h3>
+      {article.published_at && (
+        <p className="text-sm text-muted-foreground mt-1">
+          {new Date(article.published_at).toLocaleDateString()}
+        </p>
+      )}
+    </a>
+  );
+}
 
 export function ProfilePage() {
-  const { user, preferences, signOut, updatePreferences, loading: authLoading } = useAuth();
+  const { user, profile, signOut, loading: authLoading } = useAuth();
   const [updating, setUpdating] = useState(false);
   
   const { 
@@ -34,8 +51,16 @@ export function ProfilePage() {
   const { 
     articles: historyArticles, 
     loading: historyLoading,
-    clearHistory 
+    clearHistory,
+    fetchReadingHistory
   } = useReadingHistory();
+
+  useEffect(() => {
+    if (user) {
+      fetchSavedArticles();
+      fetchReadingHistory();
+    }
+  }, [user, fetchSavedArticles, fetchReadingHistory]);
 
   if (!user) {
     return (
@@ -49,16 +74,6 @@ export function ProfilePage() {
     );
   }
 
-  const handleEmailDigestChange = async (enabled: boolean) => {
-    setUpdating(true);
-    try {
-      await updatePreferences({ email_digest: enabled });
-    } catch (err) {
-      console.error('Failed to update email digest preference:', err);
-    }
-    setUpdating(false);
-  };
-
   const userInitials = user.email?.split('@')[0]?.slice(0, 2).toUpperCase() || 'U';
 
   return (
@@ -71,14 +86,14 @@ export function ProfilePage() {
       {/* Profile Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-8">
         <Avatar className="h-24 w-24">
-          <AvatarImage src={user.user_metadata.avatar_url} />
+          <AvatarImage src={user.user_metadata?.avatar_url} />
           <AvatarFallback className="text-2xl bg-foreground text-background">
             {userInitials}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1">
           <h1 className="text-2xl font-semibold mb-1">
-            {user.user_metadata.full_name || user.email?.split('@')[0] || 'User'}
+            {profile?.display_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
           </h1>
           <p className="text-muted-foreground mb-2">{user.email}</p>
           <p className="text-sm text-muted-foreground">
@@ -114,9 +129,9 @@ export function ProfilePage() {
         <div className="p-4 border border-border rounded-lg bg-card md:col-span-1 col-span-2">
           <div className="flex items-center gap-2 mb-1">
             <User className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Preferred Categories</span>
+            <span className="text-sm text-muted-foreground">Account Status</span>
           </div>
-          <p className="text-2xl font-semibold">{preferences?.preferred_categories?.length || 0}</p>
+          <p className="text-2xl font-semibold">Active</p>
         </div>
       </div>
 
@@ -145,7 +160,7 @@ export function ProfilePage() {
           ) : savedArticles.length > 0 ? (
             <div className="space-y-4">
               {savedArticles.map((article) => (
-                <ArticleCard key={article.id} article={article} showSaveButton />
+                <SimpleArticleCard key={article.id} article={article} />
               ))}
             </div>
           ) : (
@@ -170,7 +185,7 @@ export function ProfilePage() {
                 </Button>
               </div>
               {historyArticles.map((article) => (
-                <ArticleCard key={article.id} article={article} />
+                <SimpleArticleCard key={article.id} article={article} />
               ))}
             </div>
           ) : (
@@ -197,11 +212,7 @@ export function ProfilePage() {
                   </p>
                 </div>
               </div>
-              <Switch
-                checked={preferences?.email_digest || false}
-                onCheckedChange={handleEmailDigestChange}
-                disabled={updating}
-              />
+              <Switch disabled />
             </div>
 
             {/* Notifications */}
@@ -218,48 +229,6 @@ export function ProfilePage() {
                 </div>
               </div>
               <Switch disabled />
-            </div>
-
-            {/* Preferred Sources */}
-            <div className="p-4 border border-border rounded-lg bg-card">
-              <Label className="text-base mb-3 block">Preferred Sources</Label>
-              <p className="text-sm text-muted-foreground mb-4">
-                Select sources from your feed settings to customize this list
-              </p>
-              {preferences?.preferred_sources?.length ? (
-                <div className="flex flex-wrap gap-2">
-                  {preferences.preferred_sources.map((sourceId) => (
-                    <span key={sourceId} className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm">
-                      {sourceId}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No preferred sources selected</p>
-              )}
-            </div>
-
-            {/* Preferred Categories */}
-            <div className="p-4 border border-border rounded-lg bg-card">
-              <Label className="text-base mb-3 block">Preferred Categories</Label>
-              <div className="flex flex-wrap gap-2">
-                {['Technology', 'Business', 'Science', 'Health', 'Politics', 'Entertainment', 'Sports'].map((category) => (
-                  <Button
-                    key={category}
-                    variant={preferences?.preferred_categories?.includes(category) ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => {
-                      const current = preferences?.preferred_categories || [];
-                      const updated = current.includes(category)
-                        ? current.filter(c => c !== category)
-                        : [...current, category];
-                      updatePreferences({ preferred_categories: updated });
-                    }}
-                  >
-                    {category}
-                  </Button>
-                ))}
-              </div>
             </div>
           </div>
         </TabsContent>
