@@ -12,6 +12,8 @@ import random
 from datetime import datetime
 from pathlib import Path
 import feedparser
+import requests
+from bs4 import BeautifulSoup
 
 # Common news RSS feeds (ordered by preference - first source wins)
 RSS_FEEDS = {
@@ -22,6 +24,9 @@ RSS_FEEDS = {
     "reuters_world": "https://www.reutersagency.com/feed/?best-topics=world&loc=force",
     "cnn_world": "http://rss.cnn.com/rss/edition_world.rss",
     "wsj_world": "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+    # Game Dev / Technology (web scraped)
+    "game_developer": "https://www.gamedeveloper.com/business",
+    "unity_blog": "https://blogs.unity3d.com/feed/",
 }
 
 OUTPUT_FILE = Path(__file__).parent / "scraped_articles.json"
@@ -35,6 +40,9 @@ SOURCE_COLORS = {
     "reuters_world": "#FF6600", # Reuters orange
     "cnn_world": "#CC0000",     # CNN red
     "wsj_world": "#000000",     # WSJ black
+    # Game Dev
+    "game_developer": "#FF4500",  # Orange red
+    "unity_blog": "#222C37",      # Unity dark
 }
 
 def parse_date(entry):
@@ -196,7 +204,13 @@ def scrape_feed(feed_id, url):
         print(f"Fetching {feed_id}...")
         feed = feedparser.parse(url)
         
-        if feed.bozo:
+        if feed.bozo or len(feed.entries) == 0:
+            # Try web scraping as fallback
+            print(f"  RSS failed, trying web scrape...")
+            articles = scrape_web_fallback(feed_id, url)
+            if articles:
+                print(f"  Found {len(articles)} articles via web scrape")
+                return articles
             print(f"  Warning: Could not parse {feed_id}")
             return []
         
@@ -218,6 +232,51 @@ def scrape_feed(feed_id, url):
         
     except Exception as e:
         print(f"  Error fetching {feed_id}: {e}")
+        return []
+
+def scrape_web_fallback(feed_id, url):
+    """Fallback web scraping for feeds that don't work."""
+    try:
+        import requests
+        from bs4 import BeautifulSoup
+        
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        response = requests.get(url, headers=headers, timeout=15)
+        
+        if response.status_code != 200:
+            return []
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        articles = []
+        
+        if feed_id == 'game_developer':
+            # Scrape Game Developer articles from /business section
+            business_url = 'https://www.gamedeveloper.com/business'
+            resp = requests.get(business_url, headers=headers, timeout=15)
+            if resp.status_code == 200:
+                soup = BeautifulSoup(resp.content, 'html.parser')
+                links = soup.find_all('a', href=lambda x: x and '/business/' in x and len(x) > 20)
+                seen = set()
+                for link in links[:10]:
+                    title = link.get_text(strip=True)
+                    href = link.get('href', '')
+                    if title and href and href not in seen:
+                        seen.add(href)
+                        if not href.startswith('http'):
+                            href = 'https://www.gamedeveloper.com' + href
+                        articles.append({
+                            "title": title,
+                            "link": href,
+                            "summary": "",
+                            "published": datetime.now().isoformat(),
+                            "source": feed_id,
+                            "feed_title": "Game Developer",
+                            "image": None,
+                        })
+        
+        return articles
+    except Exception as e:
+        print(f"  Web scrape error: {e}")
         return []
 
 def add_placeholder_images(articles):
