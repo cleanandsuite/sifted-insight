@@ -67,21 +67,73 @@ export const ArticleManagement = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (article: Partial<Article> & { id: string }) => {
-      const { error } = await supabase
-        .from('articles')
-        .update({
-          title: article.title,
-          topic: article.topic,
-          status: article.status,
-          content_category: article.content_category,
-          is_featured: article.is_featured,
-        })
-        .eq('id', article.id);
-      if (error) throw error;
+    mutationFn: async (data: {
+      id: string;
+      title?: string;
+      topic?: string;
+      status?: Article['status'];
+      content_category?: Article['content_category'];
+      is_featured?: boolean;
+      image_url?: string;
+      published_at?: string;
+      analysis?: string;
+      key_points?: string[];
+      takeaways?: string[];
+    }) => {
+      // Update article fields
+      const articleUpdate: Record<string, unknown> = {};
+      if (data.title !== undefined) articleUpdate.title = data.title;
+      if (data.topic !== undefined) articleUpdate.topic = data.topic;
+      if (data.status !== undefined) articleUpdate.status = data.status;
+      if (data.content_category !== undefined) articleUpdate.content_category = data.content_category;
+      if (data.is_featured !== undefined) articleUpdate.is_featured = data.is_featured;
+      if (data.image_url !== undefined) articleUpdate.image_url = data.image_url;
+      if (data.published_at !== undefined) articleUpdate.published_at = data.published_at;
+
+      if (Object.keys(articleUpdate).length > 0) {
+        const { error: articleError } = await supabase
+          .from('articles')
+          .update(articleUpdate)
+          .eq('id', data.id);
+        if (articleError) throw articleError;
+      }
+
+      // Update or insert summary fields if provided
+      if (data.analysis !== undefined || data.key_points !== undefined || data.takeaways !== undefined) {
+        const summaryUpdate: Record<string, unknown> = {};
+        if (data.analysis !== undefined) summaryUpdate.analysis = data.analysis;
+        if (data.key_points !== undefined) summaryUpdate.key_points = data.key_points;
+        if (data.takeaways !== undefined) summaryUpdate.takeaways = data.takeaways;
+
+        // Check if summary exists
+        const { data: existingSummary } = await supabase
+          .from('summaries')
+          .select('id')
+          .eq('article_id', data.id)
+          .maybeSingle();
+
+        if (existingSummary) {
+          // Update existing summary
+          const { error: summaryError } = await supabase
+            .from('summaries')
+            .update(summaryUpdate)
+            .eq('article_id', data.id);
+          if (summaryError) throw summaryError;
+        } else {
+          // Insert new summary
+          const { error: summaryError } = await supabase
+            .from('summaries')
+            .insert({
+              article_id: data.id,
+              ...summaryUpdate,
+            });
+          if (summaryError) throw summaryError;
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-articles'] });
+      queryClient.invalidateQueries({ queryKey: ['article-summary'] });
       toast.success('Article updated successfully');
       setEditingArticle(null);
     },
