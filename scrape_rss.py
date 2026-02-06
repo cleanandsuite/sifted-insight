@@ -68,18 +68,38 @@ FEEDS = {
     ],
     
     # =========================================================================
-    # VIDEO GAMES (Target: 10%)
+    # VIDEO GAMES & GAMING TECHNOLOGY (Target: 10%)
     # =========================================================================
     "video_games": [
+        # Major Gaming News
         ("Polygon", "https://www.polygon.com/rss/index.xml"),
         ("Eurogamer", "https://www.eurogamer.net/?format=rss"),
         ("IGN", "https://feeds.feedburner.com/ign/games-all"),
-        ("Ars Technica Gaming", "https://feeds.arstechnica.com/arstechnica/gaming"),
-        ("The Verge Gaming", "https://www.theverge.com/rss/games/index.xml"),
-        ("Wired Gaming", "https://www.wired.com/feed/category/games/latest/rss"),
         ("Kotaku", "https://kotaku.com/rss"),
         ("GameSpot", "https://www.gamespot.com/feeds/mashup/"),
         ("PC Gamer", "https://www.pcgamer.com/rss/"),
+        ("Rock Paper Shotgun", "https://www.rockpapershotgun.com/feed"),
+        ("VG247", "https://www.vg247.com/feed"),
+        ("GamesRadar", "https://www.gamesradar.com/rss/"),
+        ("Destructoid", "https://www.destructoid.com/feed/"),
+        ("TheGamer", "https://www.thegamer.com/feed/"),
+        ("Game Rant", "https://gamerant.com/feed/"),
+        # Gaming Tech Coverage from Tech Sites
+        ("Ars Technica Gaming", "https://feeds.arstechnica.com/arstechnica/gaming"),
+        ("The Verge Gaming", "https://www.theverge.com/rss/games/index.xml"),
+        ("Wired Gaming", "https://www.wired.com/feed/category/games/latest/rss"),
+        # Platform Specific
+        ("Nintendo Life", "https://www.nintendolife.com/feeds/latest"),
+        ("Push Square", "https://www.pushsquare.com/feeds/latest"),
+        ("Pure Xbox", "https://www.purexbox.com/feeds/latest"),
+        # VR & Immersive Tech
+        ("UploadVR", "https://uploadvr.com/feed/"),
+        ("Road to VR", "https://www.roadtovr.com/feed/"),
+        # Asian Gaming & JRPG
+        ("Siliconera", "https://www.siliconera.com/feed/"),
+        # Esports & Competitive
+        ("Dexerto Gaming", "https://www.dexerto.com/feed/category/gaming"),
+        ("DualShockers", "https://www.dualshockers.com/feed/"),
     ],
     
     # =========================================================================
