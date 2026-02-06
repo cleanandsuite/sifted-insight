@@ -255,16 +255,16 @@ async function summarizeArticle(
      // Use service role for DB operations
      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
  
-     // Parse request for optional limit
-     let limit = 10; // Default batch size
-     try {
-       const body = await req.json();
-       if (body.limit && typeof body.limit === "number" && body.limit > 0 && body.limit <= 50) {
-         limit = body.limit;
-       }
-     } catch {
-       // Use default limit
-     }
+      // Parse request for optional limit
+      let limit = 100; // Default batch size
+      try {
+        const body = await req.json();
+        if (body.limit && typeof body.limit === "number" && body.limit > 0 && body.limit <= 100) {
+          limit = body.limit;
+        }
+      } catch {
+        // Use default limit
+      }
  
       // Fetch pending articles
       const { data: articles, error: fetchError } = await supabase
