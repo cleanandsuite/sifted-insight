@@ -1,12 +1,12 @@
 {
-  "scraped_at": "2026-02-06T08:00:15.089503",
-  "total_articles": 50,
+  "scraped_at": "2026-02-06T08:30:34.387419",
+  "total_articles": 48,
   "feeds_scraped": [
     "bbc_world",
-    "cnn_world",
-    "reuters_world",
     "nyt_world",
     "guardian_world",
+    "reuters_world",
+    "cnn_world",
     "wsj_world"
   ],
   "articles": [
@@ -281,6 +281,33 @@
       "image": "https://cdn.cnn.com/cnnnext/dam/assets/230413121210-01-dominion-courtroom-super-169.jpg"
     },
     {
+      "title": "Norway Rallies Behind Royals, Despite Dismay Over Epstein Links",
+      "link": "https://www.nytimes.com/2026/02/06/world/europe/epstein-revelations-norway-royal-support.html",
+      "summary": "The future queen’s links to Jeffrey Epstein, and her son’s rape trial, have disappointed many Norwegians. But there is still widespread support for the monarchy.",
+      "published": "Fri, 06 Feb 2026 14:24:38 +0000",
+      "source": "nyt_world",
+      "feed_title": "NYT > World News",
+      "image": null
+    },
+    {
+      "title": "More than 30 killed in blast at Pakistan mosque, officials say",
+      "link": "https://www.bbc.com/news/articles/cg7y7gz2835o?at_medium=RSS&at_campaign=rss",
+      "summary": "Almost 170 were injured in the explosion, which took place during Friday prayers in the capital Islamabad.",
+      "published": "Fri, 06 Feb 2026 14:15:51 GMT",
+      "source": "bbc_world",
+      "feed_title": "BBC News",
+      "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/4c75/live/2f002b40-0360-11f1-b5e2-dd58fc65f0f6.jpg"
+    },
+    {
+      "title": "Iran Is at Work on Missile and Nuclear Sites, Satellite Images Show",
+      "link": "https://www.nytimes.com/2026/02/06/world/middleeast/iran-missile-nuclear-repairs.html",
+      "summary": "Repairs at key missile sites began soon after they were hit by Israeli and U.S. strikes last year, but work at Iran’s nuclear facilities has been slower.",
+      "published": "Fri, 06 Feb 2026 14:01:39 +0000",
+      "source": "nyt_world",
+      "feed_title": "NYT > World News",
+      "image": null
+    },
+    {
       "title": "TikTok told to change 'addictive design' by EU or face massive fines",
       "link": "https://www.bbc.com/news/articles/cr7j7n315lmo?at_medium=RSS&at_campaign=rss",
       "summary": "TikTok says it plans to challenge the \"categorically false and entirely meritless\" accusations.",
@@ -308,30 +335,12 @@
       "image": null
     },
     {
-      "title": "Norway Rallies Behind Royals, Despite Dismay Over Epstein Links",
-      "link": "https://www.nytimes.com/2026/02/06/world/europe/epstein-revelations-norway-royal-support.html",
-      "summary": "The future queen’s links to Jeffrey Epstein, and her son’s rape trial, have disappointed many Norwegians. But there is still widespread support for the monarchy.",
-      "published": "Fri, 06 Feb 2026 13:11:07 +0000",
-      "source": "nyt_world",
-      "feed_title": "NYT > World News",
-      "image": null
-    },
-    {
       "title": "U.S. and Iran Set for Talks in Oman",
       "link": "https://www.nytimes.com/2026/02/06/world/europe/us-iran-talks-oman.html",
       "summary": "Middle Eastern diplomats see a chance for progress on Iran’s nuclear program, but they are pessimistic about other U.S. demands.",
       "published": "Fri, 06 Feb 2026 13:08:22 +0000",
       "source": "nyt_world",
       "feed_title": "NYT > World News",
-      "image": null
-    },
-    {
-      "title": "Canada and France open Greenland consulates in show of Denmark support",
-      "link": "https://www.theguardian.com/world/2026/feb/06/canada-and-france-open-greenland-consulates-in-show-of-denmark-support",
-      "summary": "<p>Founding of diplomatic outposts in Nuuk comes after US made efforts to secure control of Arctic island</p><ul><li><p><a href=\"https://www.theguardian.com/world/2026/feb/06/western-europeans-turning-against-us-after-greenland-threat-poll-finds\">Opposition to US has hardened in western Europe after Greenland threat, poll finds</a></p></li><li><p><a href=\"https://www.theguardian.com/world/live/2026/feb/06/russian-military-intelligence-chief-shot-moscow-vladimir-alekseyev-ukraine-europe-live-news",
-      "published": "Fri, 06 Feb 2026 12:05:45 GMT",
-      "source": "guardian_world",
-      "feed_title": "World news | The Guardian",
       "image": null
     },
     {
@@ -369,33 +378,6 @@
       "source": "bbc_world",
       "feed_title": "BBC News",
       "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/102a/live/9c16c540-0324-11f1-9972-d3f265c101c6.jpg"
-    },
-    {
-      "title": "More than 30 killed in blast at Pakistan mosque, officials say",
-      "link": "https://www.bbc.com/news/articles/cg7y7gz2835o?at_medium=RSS&at_campaign=rss",
-      "summary": "The cause of the explosion was not immediately clear, however reports have suggested it was carried out by a suicide bomber.",
-      "published": "Fri, 06 Feb 2026 11:30:05 GMT",
-      "source": "bbc_world",
-      "feed_title": "BBC News",
-      "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/bd22/live/6b5737d0-0349-11f1-a423-8bf34c43c5e3.jpg"
-    },
-    {
-      "title": "Russian General Is Shot in Moscow",
-      "link": "https://www.nytimes.com/2026/02/06/world/europe/russian-general-shot-moscow-alekseyev.html",
-      "summary": "The attack bore the hallmark of several assassination attempts on top military officers in the Russian capital.",
-      "published": "Fri, 06 Feb 2026 11:21:10 +0000",
-      "source": "nyt_world",
-      "feed_title": "NYT > World News",
-      "image": null
-    },
-    {
-      "title": "Iran Is at Work on Missile and Nuclear Sites, Satellite Images Show",
-      "link": "https://www.nytimes.com/2026/02/06/world/middleeast/iran-missile-nuclear-repairs.html",
-      "summary": "Repairs at key missile sites began soon after they were hit by Israeli and U.S. strikes last year, but work at Iran’s nuclear facilities has been slower.",
-      "published": "Fri, 06 Feb 2026 10:40:30 +0000",
-      "source": "nyt_world",
-      "feed_title": "NYT > World News",
-      "image": null
     },
     {
       "title": "What to Expect at the Olympic Opening Ceremonies, From the Man Behind Them",
