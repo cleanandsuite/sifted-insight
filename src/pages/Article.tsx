@@ -174,7 +174,7 @@ const ArticlePage = () => {
                 
                 {/* Share & Bookmark */}
                 <div className="flex items-center justify-between pt-4">
-                  <ShareButtons title={article.originalTitle} />
+                  <ShareButtons title={article.originalTitle} articleId={article.id} />
                   <BookmarkButton articleId={article.id} variant="full" />
                 </div>
               </motion.header>
