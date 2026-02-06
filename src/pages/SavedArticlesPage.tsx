@@ -1,22 +1,58 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSavedArticles } from '@/hooks/useSavedArticles';
 import { useAuth } from '@/hooks/useAuth';
-import { ArticleCard } from '@/components/ArticleCard';
 import { Loader2, Bookmark } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 import { useState } from 'react';
 
+// Simple article display for saved articles
+function SavedArticleCard({ 
+  article, 
+  onRemove 
+}: { 
+  article: { id: string; title: string; original_url: string; published_at?: string }; 
+  onRemove: () => void;
+}) {
+  return (
+    <div className="p-4 border border-border rounded-lg bg-card hover:bg-accent/50 transition-colors">
+      <div className="flex justify-between items-start gap-4">
+        <a 
+          href={article.original_url} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex-1"
+        >
+          <h3 className="font-medium line-clamp-2 hover:underline">{article.title}</h3>
+          {article.published_at && (
+            <p className="text-sm text-muted-foreground mt-1">
+              {new Date(article.published_at).toLocaleDateString()}
+            </p>
+          )}
+        </a>
+        <button 
+          onClick={(e) => { e.preventDefault(); onRemove(); }}
+          className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Remove from saved"
+        >
+          <Bookmark className="h-5 w-5 fill-current" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function SavedArticlesPage() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { articles, loading, error, fetchSavedArticles, toggleSaved, isArticleSaved } = useSavedArticles();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Fetch saved articles on mount
-  useState(() => {
-    if (isAuthenticated) {
+  useEffect(() => {
+    if (user) {
       fetchSavedArticles();
     }
-  });
+  }, [user, fetchSavedArticles]);
 
   if (authLoading) {
     return (
@@ -30,7 +66,7 @@ export function SavedArticlesPage() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return (
       <motion.div 
         initial={{ opacity: 0 }} 
@@ -71,18 +107,17 @@ export function SavedArticlesPage() {
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       ) : error ? (
-        <div className="text-center py-12 text-red-500">
+        <div className="text-center py-12 text-destructive">
           <p>Error loading saved articles</p>
           <p className="text-sm text-muted-foreground mt-1">{error}</p>
         </div>
       ) : articles.length > 0 ? (
         <div className="grid gap-4">
           {articles.map((article) => (
-            <ArticleCard 
+            <SavedArticleCard 
               key={article.id} 
               article={article}
-              isSaved={isArticleSaved(article.id)}
-              onToggleSave={() => toggleSaved(article.id)}
+              onRemove={() => toggleSaved(article.id)}
             />
           ))}
         </div>

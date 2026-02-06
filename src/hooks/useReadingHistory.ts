@@ -1,10 +1,19 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Article } from '@/lib/database.types';
 import { useAuth } from './useAuth';
 
+interface ReadingHistoryArticle {
+  id: string;
+  title: string;
+  original_url: string;
+  image_url: string | null;
+  published_at: string;
+  source_id: string | null;
+  read_at?: string;
+}
+
 interface ReadingHistoryState {
-  articles: Article[];
+  articles: ReadingHistoryArticle[];
   loading: boolean;
   error: string | null;
   totalCount: number;
@@ -30,17 +39,37 @@ export function useReadingHistory(limit: number = 50) {
     setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
-      // Use the RPC function to get reading history
+      // Query bookmarks table for read articles
       const { data, error } = await supabase
-        .rpc('get_reading_history', {
-          user_uuid: user.id,
-          limit_count: limit * page,
-        });
+        .from('bookmarks')
+        .select(`
+          id,
+          created_at,
+          article_id,
+          articles (
+            id,
+            title,
+            original_url,
+            image_url,
+            published_at,
+            source_id
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .range((page - 1) * limit, page * limit - 1);
 
       if (error) throw new Error(error.message);
 
-      const articles = data || [];
-      const hasMore = articles.length >= limit * page;
+      // Transform the data
+      const articles: ReadingHistoryArticle[] = (data || [])
+        .filter((item: { articles: unknown }) => item.articles)
+        .map((item: { articles: ReadingHistoryArticle; created_at: string }) => ({
+          ...(item.articles as ReadingHistoryArticle),
+          read_at: item.created_at,
+        }));
+      
+      const hasMore = articles.length >= limit;
 
       setState({
         articles,
@@ -64,26 +93,18 @@ export function useReadingHistory(limit: number = 50) {
     }
 
     try {
-      // Try to call the RPC function
+      // Insert into bookmarks table
       const { error } = await supabase
-        .rpc('mark_article_read', {
-          user_uuid: user.id,
-          article_uuid: articleId,
+        .from('bookmarks')
+        .upsert({
+          user_id: user.id,
+          article_id: articleId,
+        }, {
+          onConflict: 'user_id,article_id',
+          ignoreDuplicates: true,
         });
 
-      if (error) {
-        // Fallback: manual insert
-        await supabase
-          .from('article_interactions')
-          .upsert({
-            user_id: user.id,
-            article_id: articleId,
-            interaction_type: 'read',
-          }, {
-            onConflict: 'user_id, article_id, interaction_type',
-            ignoreDuplicates: true,
-          });
-      }
+      if (error) throw new Error(error.message);
 
       // Refresh the reading history
       await fetchReadingHistory();
@@ -106,12 +127,11 @@ export function useReadingHistory(limit: number = 50) {
     }
 
     try {
-      // Delete all read interactions for this user
+      // Delete all bookmarks for this user
       const { error } = await supabase
-        .from('article_interactions')
+        .from('bookmarks')
         .delete()
-        .eq('user_id', user.id)
-        .eq('interaction_type', 'read');
+        .eq('user_id', user.id);
 
       if (error) throw new Error(error.message);
 

@@ -1,10 +1,20 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Article, ArticleInteraction } from '@/lib/database.types';
 import { useAuth } from './useAuth';
 
+interface SavedArticle {
+  id: string;
+  title: string;
+  original_url: string;
+  image_url: string | null;
+  published_at: string;
+  source_id: string | null;
+  author: string | null;
+  saved_at?: string;
+}
+
 interface SavedArticlesState {
-  articles: Article[];
+  articles: SavedArticle[];
   loading: boolean;
   error: string | null;
   totalCount: number;
@@ -28,17 +38,41 @@ export function useSavedArticles() {
     setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
-      // Use the RPC function to get saved articles
+      // Query bookmarks table with article details
       const { data, error } = await supabase
-        .rpc('get_saved_articles', { user_uuid: user.id });
+        .from('bookmarks')
+        .select(`
+          id,
+          created_at,
+          article_id,
+          articles (
+            id,
+            title,
+            original_url,
+            image_url,
+            published_at,
+            source_id,
+            author
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw new Error(error.message);
 
+      // Transform the data
+      const articles: SavedArticle[] = (data || [])
+        .filter((item: { articles: unknown }) => item.articles)
+        .map((item: { articles: SavedArticle; created_at: string }) => ({
+          ...(item.articles as SavedArticle),
+          saved_at: item.created_at,
+        }));
+
       setState({
-        articles: data || [],
+        articles,
         loading: false,
         error: null,
-        totalCount: data?.length || 0,
+        totalCount: articles.length,
       });
     } catch (err) {
       setState(prev => ({
@@ -55,48 +89,39 @@ export function useSavedArticles() {
     }
 
     try {
-      // Try to call the toggle function
-      const { data, error } = await supabase
-        .rpc('toggle_article_saved', {
-          user_uuid: user.id,
-          article_uuid: articleId,
-        });
+      // Check if already saved
+      const { data: existing } = await supabase
+        .from('bookmarks')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('article_id', articleId)
+        .single();
 
-      if (error) {
-        // Fallback: manual toggle
-        // Check if already saved
-        const { data: existing } = await supabase
-          .from('article_interactions')
-          .select('id')
+      if (existing) {
+        // Remove saved bookmark
+        const { error } = await supabase
+          .from('bookmarks')
+          .delete()
           .eq('user_id', user.id)
-          .eq('article_id', articleId)
-          .eq('interaction_type', 'saved')
-          .single();
+          .eq('article_id', articleId);
 
-        if (existing) {
-          // Remove saved interaction
-          await supabase
-            .from('article_interactions')
-            .delete()
-            .eq('user_id', user.id)
-            .eq('article_id', articleId)
-            .eq('interaction_type', 'saved');
-        } else {
-          // Add saved interaction
-          await supabase
-            .from('article_interactions')
-            .insert({
-              user_id: user.id,
-              article_id: articleId,
-              interaction_type: 'saved',
-            });
-        }
+        if (error) throw new Error(error.message);
+      } else {
+        // Add bookmark
+        const { error } = await supabase
+          .from('bookmarks')
+          .insert({
+            user_id: user.id,
+            article_id: articleId,
+          });
+
+        if (error) throw new Error(error.message);
       }
 
       // Refresh the saved articles list
       await fetchSavedArticles();
       
-      return { error: null, isSaved: data };
+      return { error: null, isSaved: !existing };
     } catch (err) {
       return { 
         error: err instanceof Error ? err.message : 'Failed to toggle saved status' 

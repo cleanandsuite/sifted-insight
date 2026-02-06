@@ -15,7 +15,7 @@ export interface Database {
       articles: {
         Row: {
           id: string;
-          source_id: string;
+          source_id: string | null;
           external_id: string | null;
           title: string;
           content: string | null;
@@ -38,7 +38,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          source_id: string;
+          source_id?: string | null;
           external_id?: string | null;
           title: string;
           content?: string | null;
@@ -61,7 +61,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          source_id?: string;
+          source_id?: string | null;
           external_id?: string | null;
           title?: string;
           content?: string | null;
@@ -260,6 +260,26 @@ export interface Database {
           completed_at?: string | null;
         };
       };
+      bookmarks: {
+        Row: {
+          id: string;
+          user_id: string;
+          article_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          article_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          article_id?: string;
+          created_at?: string;
+        };
+      };
     };
     Views: {};
     Functions: {
@@ -291,10 +311,21 @@ export type Summary = Database['public']['Tables']['summaries']['Row'];
 export type Ranking = Database['public']['Tables']['rankings']['Row'];
 export type Category = Database['public']['Tables']['categories']['Row'];
 export type ScrapeLog = Database['public']['Tables']['scrape_logs']['Row'];
+export type Bookmark = Database['public']['Tables']['bookmarks']['Row'];
 
 // Combined article with relations
 export interface ArticleWithRelations extends Article {
   sources: Source | null;
   summaries: Summary | null;
   rankings: Ranking | null;
+}
+
+// User preferences type (for useAuth)
+export interface UserPreferences {
+  id: string;
+  theme?: 'light' | 'dark' | 'system';
+  email_notifications?: boolean;
+  categories?: string[];
+  created_at?: string;
+  updated_at?: string;
 }

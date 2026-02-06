@@ -2,11 +2,11 @@
  * Newsletter Subscription Hook
  * 
  * Manages newsletter subscription state and API calls.
+ * Uses edge functions for newsletter operations.
  */
 
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { sendConfirmationEmail } from '@/integrations/resend';
 
 export type SubscriptionFrequency = 'daily' | 'weekly';
 
@@ -42,33 +42,22 @@ export const useNewsletter = () => {
         throw new Error('Please enter a valid email address');
       }
 
-      // Call Supabase function to create subscriber
-      const { data, error: dbError } = await supabase
-        .rpc('subscribe_email', {
-          p_email: email,
-          p_frequency: frequency,
-          p_categories: categories,
-        });
+      // Call edge function for newsletter subscription
+      const { data, error: fnError } = await supabase.functions.invoke('subscribe-newsletter', {
+        body: {
+          email,
+          frequency,
+          categories,
+        }
+      });
 
-      if (dbError) {
-        console.error('Subscription error:', dbError);
+      if (fnError) {
+        console.error('Subscription error:', fnError);
         throw new Error('Failed to create subscription');
       }
 
-      // Send confirmation email (this would typically be handled by Edge Function)
-      // For now, we'll show the result from the database function
       if (data?.success) {
         setSubscribed(true);
-        
-        // If verification token is returned, send confirmation email
-        if (data.verification_token) {
-          await sendConfirmationEmail({
-            email,
-            verificationToken: data.verification_token,
-            frequency,
-          });
-        }
-
         return {
           success: true,
           message: data.already_verified 
@@ -78,7 +67,7 @@ export const useNewsletter = () => {
         };
       }
 
-      throw new Error('Subscription failed');
+      throw new Error(data?.message || 'Subscription failed');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'An error occurred';
       setError(message);
@@ -93,13 +82,16 @@ export const useNewsletter = () => {
     setError(null);
 
     try {
-      const { data, error: dbError } = await supabase
-        .rpc('unsubscribe_email', {
-          p_token: token,
-        });
+      // Call edge function for unsubscribe
+      const { data, error: fnError } = await supabase.functions.invoke('subscribe-newsletter', {
+        body: {
+          action: 'unsubscribe',
+          token,
+        }
+      });
 
-      if (dbError) {
-        console.error('Unsubscribe error:', dbError);
+      if (fnError) {
+        console.error('Unsubscribe error:', fnError);
         throw new Error('Failed to unsubscribe');
       }
 
@@ -126,13 +118,16 @@ export const useNewsletter = () => {
     setError(null);
 
     try {
-      const { data, error: dbError } = await supabase
-        .rpc('verify_subscription', {
-          p_token: token,
-        });
+      // Call edge function for verification
+      const { data, error: fnError } = await supabase.functions.invoke('subscribe-newsletter', {
+        body: {
+          action: 'verify',
+          token,
+        }
+      });
 
-      if (dbError) {
-        console.error('Verification error:', dbError);
+      if (fnError) {
+        console.error('Verification error:', fnError);
         throw new Error('Failed to verify subscription');
       }
 
