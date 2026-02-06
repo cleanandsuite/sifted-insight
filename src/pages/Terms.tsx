@@ -1,13 +1,17 @@
- import { Header } from '@/components/Header';
- import { Footer } from '@/components/Footer';
- import { StatusBar } from '@/components/StatusBar';
- import { motion } from 'framer-motion';
- 
- const Terms = () => {
-   return (
-     <div className="min-h-screen bg-background flex flex-col">
-       <StatusBar />
-       <Header />
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
+import { StatusBar } from '@/components/StatusBar';
+import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
+
+const Terms = () => {
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <Helmet>
+        <meta name="tiktok-developers-site-verification" content="v2oO2F1z9in0iYCNaDGDJtXAwXM6t8So" />
+      </Helmet>
+      <StatusBar />
+      <Header />
        
        <main className="flex-1 container py-12">
          <motion.div
