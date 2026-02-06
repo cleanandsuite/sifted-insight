@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Table,
   TableBody,
@@ -26,6 +27,8 @@ export const ArticleManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [deletingArticle, setDeletingArticle] = useState<Article | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: articles, isLoading } = useQuery({
@@ -65,6 +68,44 @@ export const ArticleManagement = () => {
       toast.error(`Failed to delete article: ${error.message}`);
     },
   });
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (articleIds: string[]) => {
+      const { error } = await supabase
+        .from('articles')
+        .delete()
+        .in('id', articleIds);
+      if (error) throw error;
+    },
+    onSuccess: (_, deletedIds) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-articles'] });
+      toast.success(`${deletedIds.length} articles deleted successfully`);
+      setSelectedIds(new Set());
+      setShowBulkDeleteDialog(false);
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete articles: ${error.message}`);
+    },
+  });
+
+  const toggleSelectAll = () => {
+    if (!articles) return;
+    if (selectedIds.size === articles.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(articles.map(a => a.id)));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
 
   const updateMutation = useMutation({
     mutationFn: async (data: {
@@ -163,7 +204,7 @@ export const ArticleManagement = () => {
         <CardTitle className="font-black">Article Management</CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
-        {/* Search Bar */}
+        {/* Search Bar & Bulk Actions */}
         <div className="flex gap-2 mb-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -174,6 +215,16 @@ export const ArticleManagement = () => {
               className="pl-10 border-2 border-black"
             />
           </div>
+          {selectedIds.size > 0 && (
+            <Button
+              variant="destructive"
+              className="border-2 border-black"
+              onClick={() => setShowBulkDeleteDialog(true)}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete {selectedIds.size} Selected
+            </Button>
+          )}
         </div>
 
         {/* Articles Table */}
@@ -181,6 +232,13 @@ export const ArticleManagement = () => {
           <Table>
             <TableHeader>
               <TableRow className="bg-muted">
+                <TableHead className="w-10">
+                  <Checkbox
+                    checked={articles && articles.length > 0 && selectedIds.size === articles.length}
+                    onCheckedChange={toggleSelectAll}
+                    aria-label="Select all"
+                  />
+                </TableHead>
                 <TableHead className="font-bold">Title</TableHead>
                 <TableHead className="font-bold w-24">Status</TableHead>
                 <TableHead className="font-bold w-24">Category</TableHead>
@@ -191,6 +249,7 @@ export const ArticleManagement = () => {
               {isLoading ? (
                 [...Array(5)].map((_, i) => (
                   <TableRow key={i}>
+                    <TableCell><Skeleton className="h-5 w-5" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-full" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-16" /></TableCell>
@@ -199,13 +258,20 @@ export const ArticleManagement = () => {
                 ))
               ) : articles?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
                     {searchQuery ? 'No articles found matching your search' : 'No articles yet'}
                   </TableCell>
                 </TableRow>
               ) : (
                 articles?.map((article) => (
-                  <TableRow key={article.id}>
+                  <TableRow key={article.id} className={selectedIds.has(article.id) ? 'bg-muted/50' : ''}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedIds.has(article.id)}
+                        onCheckedChange={() => toggleSelect(article.id)}
+                        aria-label={`Select ${article.title}`}
+                      />
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span className="font-medium line-clamp-1">{article.title}</span>
@@ -265,13 +331,23 @@ export const ArticleManagement = () => {
           isLoading={updateMutation.isPending}
         />
 
-        {/* Delete Dialog */}
+        {/* Single Delete Dialog */}
         <ArticleDeleteDialog
           article={deletingArticle}
           open={!!deletingArticle}
           onOpenChange={(open) => !open && setDeletingArticle(null)}
           onConfirm={() => deletingArticle && deleteMutation.mutate(deletingArticle.id)}
           isLoading={deleteMutation.isPending}
+        />
+
+        {/* Bulk Delete Dialog */}
+        <ArticleDeleteDialog
+          article={null}
+          bulkCount={selectedIds.size}
+          open={showBulkDeleteDialog}
+          onOpenChange={setShowBulkDeleteDialog}
+          onConfirm={() => bulkDeleteMutation.mutate(Array.from(selectedIds))}
+          isLoading={bulkDeleteMutation.isPending}
         />
       </CardContent>
     </Card>
