@@ -64,38 +64,41 @@ export const SummaryTabs = ({ summaryTabs, articleTitle }: SummaryTabsProps) => 
         <TabsList className="w-full justify-start rounded-none border-b border-border-strong bg-muted/50 p-0 h-auto">
           <TabsTrigger 
             value="analysis" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 font-mono text-sm gap-2"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-3 sm:px-6 py-3 font-mono text-sm gap-1.5 sm:gap-2"
+            title="Analysis"
           >
-            <BarChart3 className="w-4 h-4" />
-            Analysis
+            <BarChart3 className="w-4 h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">Analysis</span>
           </TabsTrigger>
           <TabsTrigger 
             value="keypoints" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 font-mono text-sm gap-2"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-3 sm:px-6 py-3 font-mono text-sm gap-1.5 sm:gap-2"
+            title="Key Points"
           >
-            <Lightbulb className="w-4 h-4" />
-            Key Points
+            <Lightbulb className="w-4 h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">Key Points</span>
           </TabsTrigger>
           <TabsTrigger 
             value="takeaways" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-3 font-mono text-sm gap-2"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-3 sm:px-6 py-3 font-mono text-sm gap-1.5 sm:gap-2"
+            title="Takeaways"
           >
-            <Target className="w-4 h-4" />
-            Takeaways
+            <Target className="w-4 h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">Takeaways</span>
           </TabsTrigger>
           
           {/* TTS Button - positioned to the right of Takeaways */}
           <button
             onClick={handleSpeak}
-            className={`ml-auto mr-2 flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+            className={`ml-auto mr-2 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-md transition-colors ${
               isSpeaking 
                 ? 'bg-primary text-primary-foreground' 
                 : 'hover:bg-muted text-muted-foreground hover:text-foreground'
             }`}
             title={isSpeaking ? 'Stop listening' : 'Listen to this section'}
           >
-            <Volume2 className={`w-4 h-4 ${isSpeaking ? 'animate-pulse' : ''}`} />
-            <span className="font-mono text-xs">{isSpeaking ? 'STOP' : 'LISTEN'}</span>
+            <Volume2 className={`w-4 h-4 flex-shrink-0 ${isSpeaking ? 'animate-pulse' : ''}`} />
+            <span className="hidden sm:inline font-mono text-xs">{isSpeaking ? 'STOP' : 'LISTEN'}</span>
           </button>
         </TabsList>
         
