@@ -18,6 +18,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import ContentPolicy from "./pages/ContentPolicy";
 import Advertise from "./pages/Advertise";
+import { CookieConsent } from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <CookieConsent />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
