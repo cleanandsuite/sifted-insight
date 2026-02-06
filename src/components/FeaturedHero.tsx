@@ -19,7 +19,7 @@ export const FeaturedHero = ({ article }: FeaturedHeroProps) => {
       className="w-full"
     >
       <Link to={`/article/${article.id}`} className="block group">
-        <div className="relative w-full aspect-[21/9] border border-border-strong overflow-hidden">
+        <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] border border-border-strong overflow-hidden">
            <ArticleImage
             src={article.mediaUrl}
             alt={article.originalTitle}
