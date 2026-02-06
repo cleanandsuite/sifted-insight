@@ -5,13 +5,15 @@ import {
   Leaf, 
   Landmark, 
   TrendingUp,
-  LayoutGrid 
+  LayoutGrid,
+  Gamepad2
 } from 'lucide-react';
 
 // Main content categories that match the database content_category enum
 export const CATEGORIES = [
   { id: 'all', label: 'All', icon: LayoutGrid },
   { id: 'tech', label: 'Tech', icon: Cpu },
+  { id: 'video_games', label: 'Video Games', icon: Gamepad2 },
   { id: 'finance', label: 'Finance', icon: TrendingUp },
   { id: 'politics', label: 'Politics', icon: Landmark },
   { id: 'climate', label: 'Climate', icon: Leaf },

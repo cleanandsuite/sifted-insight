@@ -30,7 +30,7 @@ interface ArticleEditDialogProps {
 }
 
 const STATUSES = ['pending', 'processing', 'published', 'failed', 'archived'] as const;
-const CATEGORIES = ['tech', 'finance', 'politics', 'climate'] as const;
+const CATEGORIES = ['tech', 'video_games', 'finance', 'politics', 'climate'] as const;
 
 export const ArticleEditDialog = ({
   article,
