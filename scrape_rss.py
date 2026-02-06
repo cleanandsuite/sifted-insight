@@ -215,7 +215,7 @@ def scrape_feed(feed_id, url):
             return []
         
         articles = []
-        for entry in feed.entries[:10]:  # Limit to 10 articles per feed
+        for entry in feed.entries[:5]:  # Limit to 5 featured articles per feed
             article = {
                 "title": entry.get("title", "No title"),
                 "link": entry.get("link", ""),
@@ -257,7 +257,7 @@ def scrape_web_fallback(feed_id, url):
                 soup = BeautifulSoup(resp.content, 'html.parser')
                 links = soup.find_all('a', href=lambda x: x and '/business/' in x and len(x) > 20)
                 seen = set()
-                for link in links[:10]:
+                for link in links[:5]:  # Only top 5 featured
                     title = link.get_text(strip=True)
                     href = link.get('href', '')
                     if title and href and href not in seen:
