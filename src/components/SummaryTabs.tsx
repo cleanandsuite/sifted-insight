@@ -36,6 +36,27 @@ export const SummaryTabs = ({ summaryTabs, articleTitle }: SummaryTabsProps) => 
         const utterance = new SpeechSynthesisUtterance(getTabText());
         utterance.rate = 0.9;
         utterance.pitch = 1;
+        
+        // Select a female voice by default
+        const voices = window.speechSynthesis.getVoices();
+        const femaleVoice = voices.find(voice => 
+          voice.name.toLowerCase().includes('female') ||
+          voice.name.toLowerCase().includes('samantha') ||
+          voice.name.toLowerCase().includes('victoria') ||
+          voice.name.toLowerCase().includes('karen') ||
+          voice.name.toLowerCase().includes('moira') ||
+          voice.name.toLowerCase().includes('tessa') ||
+          voice.name.toLowerCase().includes('fiona') ||
+          voice.name.includes('Google UK English Female') ||
+          voice.name.includes('Google US English') ||
+          voice.name.includes('Microsoft Zira') ||
+          voice.name.includes('Microsoft Hazel')
+        );
+        
+        if (femaleVoice) {
+          utterance.voice = femaleVoice;
+        }
+        
         utterance.onend = () => setIsSpeaking(false);
         utterance.onerror = () => setIsSpeaking(false);
         window.speechSynthesis.speak(utterance);
