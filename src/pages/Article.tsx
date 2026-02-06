@@ -14,6 +14,7 @@ import { ShareButtons } from '@/components/ShareButtons';
 import { BookmarkButton } from '@/components/BookmarkButton';
 import { AuthorBio } from '@/components/AuthorBio';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
+import { ArticleMetaTags } from '@/components/ArticleMetaTags';
 import SourcesIcon from '@/components/SourcesIcon';
 import SourcesDrawer from '@/components/SourcesDrawer';
 import SourcesModal from '@/components/SourcesModal';
@@ -109,10 +110,22 @@ const ArticlePage = () => {
     );
   }
 
+  // Get summary for meta description
+  const metaDescription = article.aiSummary || article.summaryTabs?.keyPoints?.[0] || `Read the latest on ${article.topic || 'trending news'} from NOOZ.NEWS`;
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <ArticleMetaTags
+        title={article.originalTitle}
+        description={typeof metaDescription === 'string' ? metaDescription : String(metaDescription)}
+        imageUrl={article.mediaUrl || ''}
+        articleId={article.id}
+        author={article.originalAuthor}
+        publishedAt={article.publishedAt}
+        topic={article.topic}
+        tags={article.tags}
+      />
       <StatusBar />
-      <Header />
       
       <main className="flex-1">
         <div className="container mt-6">
