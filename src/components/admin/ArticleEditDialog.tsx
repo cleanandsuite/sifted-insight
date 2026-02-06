@@ -20,8 +20,9 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Upload, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Article = Tables<'articles'>;
@@ -73,6 +74,9 @@ export const ArticleEditDialog = ({
   const [analysis, setAnalysis] = useState('');
   const [keyPoints, setKeyPoints] = useState<string[]>([]);
   const [takeaways, setTakeaways] = useState<string[]>([]);
+  
+  // Upload state
+  const [isUploading, setIsUploading] = useState(false);
 
   // Fetch summary data for the article
   const { data: summary } = useQuery({
@@ -150,6 +154,48 @@ export const ArticleEditDialog = ({
   };
   const removeTakeaway = (index: number) => {
     setTakeaways(takeaways.filter((_, i) => i !== index));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${article?.id || 'new'}-${Date.now()}.${fileExt}`;
+      const filePath = `featured/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('article-images')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('article-images')
+        .getPublicUrl(filePath);
+
+      setImageUrl(publicUrl);
+      toast.success('Image uploaded successfully');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -328,7 +374,46 @@ export const ArticleEditDialog = ({
           {/* Media & Time Tab */}
           <TabsContent value="media" className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="imageUrl" className="font-bold">Featured Image URL</Label>
+              <Label htmlFor="imageUrl" className="font-bold">Featured Image</Label>
+              
+              {/* Upload Button */}
+              <div className="flex flex-col sm:flex-row gap-2">
+                <label className="relative cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    disabled={isUploading}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-2 border-black w-full sm:w-auto"
+                    disabled={isUploading}
+                    asChild
+                  >
+                    <span>
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-4 h-4 mr-2" />
+                          Upload Image
+                        </>
+                      )}
+                    </span>
+                  </Button>
+                </label>
+                <span className="text-xs text-muted-foreground self-center">
+                  or enter URL below
+                </span>
+              </div>
+              
+              {/* URL Input */}
               <Input
                 id="imageUrl"
                 value={imageUrl}
@@ -336,16 +421,27 @@ export const ArticleEditDialog = ({
                 placeholder="https://example.com/image.jpg"
                 className="border-2 border-black"
               />
+              
+              {/* Image Preview */}
               {imageUrl && (
-                <div className="mt-2 border-2 border-black p-2">
+                <div className="mt-2 border-2 border-black p-2 relative">
                   <img 
                     src={imageUrl} 
                     alt="Preview" 
-                    className="max-h-32 w-auto object-contain"
+                    className="max-h-40 w-auto object-contain mx-auto"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }}
                   />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setImageUrl('')}
+                    className="absolute top-1 right-1 h-6 w-6 p-0 border-2 border-black bg-background"
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
                 </div>
               )}
             </div>
