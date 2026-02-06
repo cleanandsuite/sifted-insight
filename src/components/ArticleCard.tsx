@@ -58,16 +58,16 @@ export const ArticleCard = ({ article, index }: ArticleCardProps) => {
               {article.aiSummary}
             </p>
             
-            {/* Footer */}
-            <div className="flex items-center justify-between pt-3 border-t border-border">
-              <ReadTimeComparison 
-                original={article.originalReadTime} 
-                sifted={article.siftedReadTime} 
-              />
-              <span className="terminal-text text-muted-foreground">
-                {timeAgo(article.publishedAt)}
-              </span>
-            </div>
+          {/* Footer */}
+          <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
+            <ReadTimeComparison 
+              original={article.originalReadTime} 
+              sifted={article.siftedReadTime} 
+            />
+            <span className="terminal-text text-muted-foreground flex-shrink-0">
+              {timeAgo(article.publishedAt)}
+            </span>
+          </div>
           </div>
         </article>
       </Link>

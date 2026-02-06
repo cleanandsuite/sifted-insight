@@ -15,19 +15,19 @@ export const SourceCredits = ({ author, publication, sourceUrl }: SourceCreditsP
       transition={{ delay: 0.3 }}
       className="border-2 border-border-strong bg-secondary/30 p-6"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="min-w-0 flex-1">
           <h3 className="terminal-text font-medium text-foreground mb-3">
             Source & Credits
           </h3>
           <div className="space-y-2">
             <p className="text-sm">
-              <span className="text-muted-foreground">Original Author:</span>{' '}
-              <span className="font-medium">{author}</span>
+              <span className="text-muted-foreground">Author:</span>{' '}
+              <span className="font-medium break-words">{author}</span>
             </p>
             <p className="text-sm">
               <span className="text-muted-foreground">Publication:</span>{' '}
-              <span className="font-medium">{publication}</span>
+              <span className="font-medium break-words">{publication}</span>
             </p>
           </div>
         </div>
@@ -35,7 +35,7 @@ export const SourceCredits = ({ author, publication, sourceUrl }: SourceCreditsP
           href={sourceUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 bg-foreground text-background font-mono text-xs uppercase tracking-wider hover:opacity-90 transition-opacity"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-foreground text-background font-mono text-xs uppercase tracking-wider hover:opacity-90 transition-opacity flex-shrink-0 w-full sm:w-auto"
         >
           Read Original
           <ExternalLink className="w-3 h-3" />
