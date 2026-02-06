@@ -38,12 +38,6 @@ export const CATEGORY_KEYWORDS: Record<ContentCategory, Record<string, string[]>
       'supercharger', 'gigafactory', 'roadster', 'semi', 'powerwall', 'megapack',
       'battery', 'spacex', 'starlink', 'neuralink', 'boring company'
     ],
-    crypto: [
-      'bitcoin', 'ethereum', 'crypto', 'cryptocurrency', 'blockchain', 'defi',
-      'nft', 'web3', 'token', 'wallet', 'coinbase', 'binance', 'solana',
-      'cardano', 'dogecoin', 'mining', 'staking', 'smart contract', 'dao',
-      'decentralized', 'altcoin', 'stablecoin', 'usdc', 'tether', 'ledger'
-    ],
     general: [
       'software', 'startup', 'app', 'tech', 'digital', 'cloud', 'programming',
       'developer', 'api', 'saas', 'platform', 'silicon valley', 'venture capital',
@@ -106,6 +100,12 @@ export const CATEGORY_KEYWORDS: Record<ContentCategory, Record<string, string[]>
       'treasury', 'debt ceiling', 'trade', 'tariff', 'export', 'import',
       'unemployment', 'jobs report', 'labor market', 'consumer', 'spending',
       'cpi', 'ppi', 'central bank', 'ecb', 'boe', 'imf', 'world bank'
+    ],
+    crypto: [
+      'bitcoin', 'ethereum', 'crypto', 'cryptocurrency', 'blockchain', 'defi',
+      'nft', 'web3', 'token', 'wallet', 'coinbase', 'binance', 'solana',
+      'cardano', 'dogecoin', 'mining', 'staking', 'smart contract', 'dao',
+      'decentralized', 'altcoin', 'stablecoin', 'usdc', 'tether', 'ledger'
     ]
   },
   politics: {
