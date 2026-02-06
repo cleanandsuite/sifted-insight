@@ -7,8 +7,9 @@ import { useAdminAnalytics, useRecentEvents } from '@/hooks/useAdminAnalytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrapeControlCard } from '@/components/admin/ScrapeControlCard';
- import { ContentMixCard } from '@/components/admin/ContentMixCard';
+import { ContentMixCard } from '@/components/admin/ContentMixCard';
 import { BulkSummarizeCard } from '@/components/admin/BulkSummarizeCard';
+import { ArticleManagement } from '@/components/admin/ArticleManagement';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { 
@@ -100,6 +101,11 @@ const Dashboard = () => {
           <ScrapeControlCard onScrapeComplete={handleRefreshAll} />
           <BulkSummarizeCard pendingCount={pendingCount || 0} onComplete={handleRefreshAll} />
           <ContentMixCard />
+        </div>
+
+        {/* Article Management */}
+        <div className="mb-8">
+          <ArticleManagement />
         </div>
 
         {/* Stats Cards */}
