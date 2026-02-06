@@ -39,13 +39,13 @@ export const FeaturedHero = ({ article }: FeaturedHeroProps) => {
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
             <div className="max-w-4xl">
               {/* Tags */}
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4 flex-wrap">
                 <span className="tag-accent">{article.tags[0] || article.topic || 'News'}</span>
-                <span className="font-mono text-xs text-white/70 uppercase">
+                <span className="font-mono text-[10px] sm:text-xs text-white/70 uppercase truncate max-w-[100px] sm:max-w-none">
                   {article.sourcePublication}
                 </span>
-                <span className="text-white/50">•</span>
-                <span className="font-mono text-xs text-white/70">
+                <span className="text-white/50 hidden sm:inline">•</span>
+                <span className="font-mono text-[10px] sm:text-xs text-white/70">
                   {timeAgo(article.publishedAt)}
                 </span>
               </div>
@@ -61,13 +61,13 @@ export const FeaturedHero = ({ article }: FeaturedHeroProps) => {
               </p>
               
               {/* Meta */}
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
                 <ReadTimeComparison 
                   original={article.originalReadTime} 
                   sifted={article.siftedReadTime}
                   variant="hero"
                 />
-                <span className="font-mono text-xs text-white/60 uppercase">
+                <span className="font-mono text-[10px] sm:text-xs text-white/60 uppercase truncate max-w-[150px] sm:max-w-none">
                   By {article.originalAuthor}
                 </span>
               </div>

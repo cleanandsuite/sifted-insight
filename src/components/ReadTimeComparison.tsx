@@ -9,11 +9,11 @@ export const ReadTimeComparison = ({ original, sifted, variant = 'default' }: Re
   
   if (variant === 'hero') {
     return (
-      <div className="font-mono text-xs">
-        <span className="line-through text-white/50">{original} min</span>
-        <span className="mx-2 text-white/30">→</span>
-        <span className="text-primary font-medium">{sifted} min read</span>
-        <span className="ml-2 text-white/50">({timeSaved} min saved)</span>
+      <div className="font-mono text-[10px] sm:text-xs flex flex-wrap items-center gap-x-1">
+        <span className="line-through text-white/50">{original}m</span>
+        <span className="text-white/30">→</span>
+        <span className="text-primary font-medium">{sifted}m</span>
+        <span className="text-white/50 hidden sm:inline">({timeSaved}m saved)</span>
       </div>
     );
   }

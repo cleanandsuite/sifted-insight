@@ -72,30 +72,30 @@ export const ShareButtons = ({ title, url, articleId }: ShareButtonsProps) => {
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="terminal-text text-muted-foreground mr-2">Share</span>
+    <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+      <span className="terminal-text text-muted-foreground mr-1 sm:mr-2 hidden sm:inline">Share</span>
       {shareLinks.map((link) => {
         const Icon = link.icon;
         return (
           <button
             key={link.name}
             onClick={() => handleShare(link.name, link.url)}
-            className="p-2 border border-border-strong hover:bg-card-hover transition-colors"
+            className="p-1.5 sm:p-2 border border-border-strong hover:bg-card-hover transition-colors"
             aria-label={`Share on ${link.name}`}
           >
-            <Icon className="w-4 h-4" />
+            <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         );
       })}
       <button
         onClick={copyToClipboard}
-        className="p-2 border border-border-strong hover:bg-card-hover transition-colors"
+        className="p-1.5 sm:p-2 border border-border-strong hover:bg-card-hover transition-colors"
         aria-label="Copy link"
       >
         {copied ? (
-          <Check className="w-4 h-4 text-primary" />
+          <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
         ) : (
-          <Link2 className="w-4 h-4" />
+          <Link2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         )}
       </button>
     </div>

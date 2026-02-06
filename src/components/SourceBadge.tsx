@@ -27,7 +27,7 @@ export const SourceBadge = ({ source, size = 'sm' }: SourceBadgeProps) => {
     : 'w-6 h-6 text-xs';
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5 min-w-0 max-w-full">
       <div 
         className={`${sizeClasses} ${colorClass} text-white flex items-center justify-center font-mono font-bold flex-shrink-0`}
         title={source}
@@ -38,7 +38,7 @@ export const SourceBadge = ({ source, size = 'sm' }: SourceBadgeProps) => {
           initial
         )}
       </div>
-      <span className="terminal-text truncate">{source}</span>
+      <span className="terminal-text truncate max-w-[100px] sm:max-w-[140px]">{source}</span>
     </div>
   );
 };

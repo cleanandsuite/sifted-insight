@@ -169,16 +169,15 @@ const ArticlePage = () => {
                 </h1>
                 
                 {/* Meta */}
-                <div className="flex flex-wrap items-center gap-4 pb-6 border-b border-border-strong">
-                  <span className="terminal-text">{article.sourcePublication}</span>
-                  <span className="text-muted-foreground">•</span>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 pb-6 border-b border-border-strong">
+                  <span className="terminal-text truncate max-w-[120px] sm:max-w-none">{article.sourcePublication}</span>
+                  <span className="text-muted-foreground hidden sm:inline">•</span>
                   <span className="terminal-text text-muted-foreground">{timeAgo(article.publishedAt)}</span>
-                  <span className="text-muted-foreground">•</span>
+                  <span className="text-muted-foreground hidden sm:inline">•</span>
                   <ReadTimeComparison 
                     original={article.originalReadTime} 
                     sifted={article.siftedReadTime} 
                   />
-                  <span className="text-muted-foreground">•</span>
                   <SourcesIcon 
                     onClick={() => setShowSources(true)}
                     sourceCount={sources.length}
