@@ -1,5 +1,5 @@
 {
-  "scraped_at": "2026-02-06T09:27:49.267492",
+  "scraped_at": "2026-02-06T09:29:10.132771",
   "total_articles": 68,
   "feeds_scraped": [
     "google_news",
@@ -10,9 +10,7 @@
     "cnn_world",
     "wsj_world",
     "game_developer",
-    "gdc",
-    "unity_blog",
-    "unreal_engine"
+    "unity_blog"
   ],
   "articles": [
     {
@@ -22,7 +20,7 @@
       "published": "Wed, 22 Oct 2025 00:00:00 GMT",
       "source": "unity_blog",
       "feed_title": "Unity Blog RSS Feed",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391668.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391749.jpg"
     },
     {
       "title": "Ogdensburg man arrested on nearly 2 dozen child pornography charges - nny360.com",
@@ -31,7 +29,7 @@
       "published": "Wed, 21 Jan 2026 08:00:00 GMT",
       "source": "google_news",
       "feed_title": "\"TOP_STORIES\" - Google News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391668.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391749.jpg"
     },
     {
       "title": "Paper set to change hands - JHNewsAndGuide.com",
@@ -40,16 +38,16 @@
       "published": "Wed, 19 Dec 2012 08:00:00 GMT",
       "source": "google_news",
       "feed_title": "\"TOP_STORIES\" - Google News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391668.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391749.jpg"
     },
     {
-      "title": "Autopsy info released in homicide case, manhunt continues - The Malone Telegram",
-      "link": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxPNnVRNGNSc0ZzOXh1X3JrS2pQTldkTEFGbnR4YkhleGZUajIwRlpfbXlmalctb1lmUWtRd0ZnUzMzMk01SU15cVhhS0I5TUQ4OTBFWnEtX0tKdzBPNkJwY0tkSERWMV9ZSi02NjJxdE9jN29aLWVVSG9zaTNfZDdGdk9TNGdOOFgycUJqbXEtSUc3X2RISVNlcXFPaXM5R281NFdtanlONXZlWlJYMG02b0VBb0Y1d1BiX3B0WGszc0N6R0tMZFBQUkRtbzdfTm5acnMySS1Rb25kS05tTXFwS2VSRFBwQQ?oc=5",
-      "summary": "<a href=\"https://news.google.com/rss/articles/CBMi5gFBVV95cUxPNnVRNGNSc0ZzOXh1X3JrS2pQTldkTEFGbnR4YkhleGZUajIwRlpfbXlmalctb1lmUWtRd0ZnUzMzMk01SU15cVhhS0I5TUQ4OTBFWnEtX0tKdzBPNkJwY0tkSERWMV9ZSi02NjJxdE9jN29aLWVVSG9zaTNfZDdGdk9TNGdOOFgycUJqbXEtSUc3X2RISVNlcXFPaXM5R281NFdtanlONXZlWlJYMG02b0VBb0Y1d1BiX3B0WGszc0N6R0tMZFBQUkRtbzdfTm5acnMySS1Rb25kS05tTXFwS2VSRFBwQQ?oc=5\" target=\"_blank\">Autopsy info released in homicide case, manhunt continues</a>&nbsp;&nbsp;<font color=\"#6f6f6f\">The Malone Telegram</f",
-      "published": "Wed, 17 Sep 2025 07:00:00 GMT",
+      "title": "Tribute to an Orofino world class athlete - Clearwater Tribune",
+      "link": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxQMEx2YUVqM2JJT1JYQndJdWpCVlpKLW8wWW1YVi11eEpqVHhJeW5zTEtZN2ZfUWlQeS1iWjF3cEhDTVBvSTJIcm1MVWxmRDRUbXRNWTJaS3kweFFwcmFSdGVuNUxMSXE1eGM3YWV6ZmRtT1BoR2pHZ1Q2UFBGTHRLQ1pHSmhER1BRVDhLRUF5ZDhidkN4VU5ORXFzU2t0YXdoUGlLNG1SX2tlSEwzd3BEdDRYc3hKbDB0eThvVEUtbGZzMEJ6NjVEb1BFTlhjYllvUVJlTjZET2h5UQ?oc=5",
+      "summary": "<a href=\"https://news.google.com/rss/articles/CBMi2gFBVV95cUxQMEx2YUVqM2JJT1JYQndJdWpCVlpKLW8wWW1YVi11eEpqVHhJeW5zTEtZN2ZfUWlQeS1iWjF3cEhDTVBvSTJIcm1MVWxmRDRUbXRNWTJaS3kweFFwcmFSdGVuNUxMSXE1eGM3YWV6ZmRtT1BoR2pHZ1Q2UFBGTHRLQ1pHSmhER1BRVDhLRUF5ZDhidkN4VU5ORXFzU2t0YXdoUGlLNG1SX2tlSEwzd3BEdDRYc3hKbDB0eThvVEUtbGZzMEJ6NjVEb1BFTlhjYllvUVJlTjZET2h5UQ?oc=5\" target=\"_blank\">Tribute to an Orofino world class athlete</a>&nbsp;&nbsp;<font color=\"#6f6f6f\">Clearwater Tribune</font>",
+      "published": "Wed, 15 Oct 2025 07:00:00 GMT",
       "source": "google_news",
       "feed_title": "\"TOP_STORIES\" - Google News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391668.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391749.jpg"
     },
     {
       "title": "Fontana Regional Library board chair responds to proposed contract amendments - The Sylva Herald",
@@ -58,7 +56,7 @@
       "published": "Wed, 12 Nov 2025 08:00:00 GMT",
       "source": "google_news",
       "feed_title": "\"TOP_STORIES\" - Google News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391668.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391749.jpg"
     },
     {
       "title": "Gunmen kill more than 160 people in attacks on two west Nigeria villages",
@@ -67,7 +65,7 @@
       "published": "Wed, 04 Feb 2026 17:40:32 GMT",
       "source": "guardian_world",
       "feed_title": "World news | The Guardian",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391668.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391749.jpg"
     },
     {
       "title": "Ugandan opposition leader still in hiding as feud with president’s son escalates",
@@ -76,7 +74,7 @@
       "published": "Wed, 04 Feb 2026 12:07:57 GMT",
       "source": "guardian_world",
       "feed_title": "World news | The Guardian",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391668.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391749.jpg"
     },
     {
       "title": "Death of Nigerian singer after snakebite highlights crisis of ‘preventable’ fatalities",
@@ -85,7 +83,7 @@
       "published": "Wed, 04 Feb 2026 10:00:39 GMT",
       "source": "guardian_world",
       "feed_title": "World news | The Guardian",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391668.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391749.jpg"
     },
     {
       "title": "Tailoring digital play by age: How StoryToys built the LEGO® Bluey app",
@@ -94,7 +92,7 @@
       "published": "Wed, 01 Oct 2025 00:00:00 GMT",
       "source": "unity_blog",
       "feed_title": "Unity Blog RSS Feed",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391668.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391749.jpg"
     },
     {
       "title": "These were the best and worst places for air quality in 2021, new report shows",
@@ -106,22 +104,13 @@
       "image": "https://cdn.cnn.com/cnnnext/dam/assets/220321134236-01-india-pollution-2021-super-169.jpg"
     },
     {
-      "title": "Spending spree - Herald and News",
-      "link": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQSlFnT01OZ1V6X3cxNlpTUmlWOFJGakRHOHE5TmJvR3pKaURBLUFERzY4UkNuSGREcnV5ZmJ3bWhLSUZJZVdJYW9FSmdhb0VKMXNBTjBuSHhmRVplZ3QxWERUc3dOeklwRDFDNE9EdXY1UFVORGZkRFU1LXljMUdCblFCZUdIU0lrVUNjd18yZVJEblhtQnlWVDRIWW92Tmc4NXROWkc5VUV1dEpRX183ctIBtgFBVV95cUxQWHRBYW1JSTU4czNvVG1WQkR3MFVQaDRTUFdrN2RIZHZPTHBOUzhGdTRid1JEc0tkck1BU0NMcklnSUlhajZ6SU9zcVNLMzlhamVrNVVRV3hSd0s1Z000bFliSUViWVppeXVlOVlmVlNLRVd2UFphU2NiZnV5T01JME51S1JMbEZRdldfSjgyTUhnSUFHRUNLN2lNcXZjRVlHVWdFb2tOYU15dHRocTU3am1VYXg4UQ?oc=5",
-      "summary": "<a href=\"https://news.google.com/rss/articles/CBMisAFBVV95cUxQSlFnT01OZ1V6X3cxNlpTUmlWOFJGakRHOHE5TmJvR3pKaURBLUFERzY4UkNuSGREcnV5ZmJ3bWhLSUZJZVdJYW9FSmdhb0VKMXNBTjBuSHhmRVplZ3QxWERUc3dOeklwRDFDNE9EdXY1UFVORGZkRFU1LXljMUdCblFCZUdIU0lrVUNjd18yZVJEblhtQnlWVDRIWW92Tmc4NXROWkc5VUV1dEpRX183ctIBtgFBVV95cUxQWHRBYW1JSTU4czNvVG1WQkR3MFVQaDRTUFdrN2RIZHZPTHBOUzhGdTRid1JEc0tkck1BU0NMcklnSUlhajZ6SU9zcVNLMzlhamVrNVVRV3hSd0s1Z000bFliSUViWVppeXVlOVlmVlNLRVd2UFphU2NiZnV5T01JME51S1JMbEZRdldfSjgyTUhnSUFHRUNLN2lNcX",
-      "published": "Tue, 21 Jun 2005 07:00:00 GMT",
-      "source": "google_news",
-      "feed_title": "\"TOP_STORIES\" - Google News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391668.jpg"
-    },
-    {
-      "title": "Local officials react to Bare Hill closure - The Malone Telegram",
-      "link": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxPdl9Sa2dmRGI5cjg5OGZtblpRTHVSa1k1NVNWQTRTWUxyNkdoVnZwaWMzOVZmUE1LYlNKUEhNZUVXNWlrRFdtV2xuX1dsUy1UNmZkWjJMckFwT0h2T1NoSnBJM05CZ1c4UDlDM0JTV25TcFFDNUpFSVpWaTJEX05BZUx2dVBRSnF1X0lLOWFIa0MyNzRCcDJzdjJQLUJmS2pTNEstQXp3dy1Namw3UVFHQVpmcHNmOVU0MEJZcEFhTDNBTVpFMHlfWV9meVNjWXl4T3ow?oc=5",
-      "summary": "<a href=\"https://news.google.com/rss/articles/CBMi0wFBVV95cUxPdl9Sa2dmRGI5cjg5OGZtblpRTHVSa1k1NVNWQTRTWUxyNkdoVnZwaWMzOVZmUE1LYlNKUEhNZUVXNWlrRFdtV2xuX1dsUy1UNmZkWjJMckFwT0h2T1NoSnBJM05CZ1c4UDlDM0JTV25TcFFDNUpFSVpWaTJEX05BZUx2dVBRSnF1X0lLOWFIa0MyNzRCcDJzdjJQLUJmS2pTNEstQXp3dy1Namw3UVFHQVpmcHNmOVU0MEJZcEFhTDNBTVpFMHlfWV9meVNjWXl4T3ow?oc=5\" target=\"_blank\">Local officials react to Bare Hill closure</a>&nbsp;&nbsp;<font color=\"#6f6f6f\">The Malone Telegram</font>",
+      "title": "As HEAP deadline delayed again, Hochul call on Trump administration to restore funds - The Malone Telegram",
+      "link": "https://news.google.com/rss/articles/CBMiigJBVV95cUxQc2lKajE0bUY1OXoxa0VDbS1kX0NhZjhWTmhTVHNLMlVjNUgyX1RKNzRRNk1leHV4T0FyZFA4LUoyaE9VY1habmxMUjh5LU9IVk1vZFBLZkJNcENUT0FpY0d4QWxVQUl5RVFRMnB2cmJCX20yMTNfUllza21WdExCZlZ3Zk5rdml0V2NpWkN3Tk4ydU9FeTM4YVZaSDJpUW9CckY2cFVudkozNi03QWhxVmJ1a2JNcTlpYnduTEdwbVVpX3FRZDNGR3R1ZFpOeFU3UkNiVlJZUHpPeWVCdHZVdGpOelA1WjA3M2tpRWthY1FNSzBhclRnUW83anotOEg5X25ESVlvTHBoUQ?oc=5",
+      "summary": "<a href=\"https://news.google.com/rss/articles/CBMiigJBVV95cUxQc2lKajE0bUY1OXoxa0VDbS1kX0NhZjhWTmhTVHNLMlVjNUgyX1RKNzRRNk1leHV4T0FyZFA4LUoyaE9VY1habmxMUjh5LU9IVk1vZFBLZkJNcENUT0FpY0d4QWxVQUl5RVFRMnB2cmJCX20yMTNfUllza21WdExCZlZ3Zk5rdml0V2NpWkN3Tk4ydU9FeTM4YVZaSDJpUW9CckY2cFVudkozNi03QWhxVmJ1a2JNcTlpYnduTEdwbVVpX3FRZDNGR3R1ZFpOeFU3UkNiVlJZUHpPeWVCdHZVdGpOelA1WjA3M2tpRWthY1FNSzBhclRnUW83anotOEg5X25ESVlvTHBoUQ?oc=5\" target=\"_blank\">As HEAP deadline delayed again, Hochul call on Trump administration t",
       "published": "Tue, 18 Nov 2025 08:00:00 GMT",
       "source": "google_news",
       "feed_title": "\"TOP_STORIES\" - Google News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391668.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391749.jpg"
     },
     {
       "title": "Look of the Week: Blackpink headline Coachella in Korean hanboks",
@@ -139,7 +128,7 @@
       "published": "Tue, 09 Dec 2025 00:00:00 GMT",
       "source": "unity_blog",
       "feed_title": "Unity Blog RSS Feed",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391668.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391749.jpg"
     },
     {
       "title": "Scientists identify secret ingredient in Leonardo da Vinci paintings",
@@ -151,13 +140,31 @@
       "image": "https://cdn.cnn.com/cnnnext/dam/assets/230328171153-01-old-masters-egg-yolk-painting-super-169.jpg"
     },
     {
+      "title": "Falcon Heights eyeing charge for Fair parking - parkbugle.org",
+      "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPUldSb3NSVmZzMU02RThsaTBTR05JcWxPTmlILVljeFBCam5BSU5ENS1uNnZ1ZGtzRnZELUFuU0FBdjZyak1Cb3BaS1VxQUNCa3BsSVU3anREdGhBX1Ridk1CQ3RzNll3Y3k1ZzF6R0VQTUs5b0ZvSm1tUUw3eG8wbVM4ZEdvVXB5aGNNZm9MNGw?oc=5",
+      "summary": "<a href=\"https://news.google.com/rss/articles/CBMikAFBVV95cUxPUldSb3NSVmZzMU02RThsaTBTR05JcWxPTmlILVljeFBCam5BSU5ENS1uNnZ1ZGtzRnZELUFuU0FBdjZyak1Cb3BaS1VxQUNCa3BsSVU3anREdGhBX1Ridk1CQ3RzNll3Y3k1ZzF6R0VQTUs5b0ZvSm1tUUw3eG8wbVM4ZEdvVXB5aGNNZm9MNGw?oc=5\" target=\"_blank\">Falcon Heights eyeing charge for Fair parking</a>&nbsp;&nbsp;<font color=\"#6f6f6f\">parkbugle.org</font>",
+      "published": "Thu, 27 Feb 2025 08:00:00 GMT",
+      "source": "google_news",
+      "feed_title": "\"TOP_STORIES\" - Google News",
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391749.jpg"
+    },
+    {
       "title": "2025's brightest stars: A holiday customer story round-up",
       "link": "https://unity.com/blog/industry-customer-success-stories-2025-round-up",
       "summary": "As we wrap up another incredible year, it feels like the perfect time to open a few presents early. While the holidays bring cheer and reflection, we’re unpacking something special: the gift of our customers' success. 2025 was a remarkable year for innovation, and we've been inspired by the groundbreaking work of our partners across diverse industries. From revolutionizing in-car experiences in the automotive world to pioneering new frontiers in healthcare and manufacturing, our customers have u",
       "published": "Thu, 18 Dec 2025 00:00:00 GMT",
       "source": "unity_blog",
       "feed_title": "Unity Blog RSS Feed",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391749.jpg"
+    },
+    {
+      "title": "Potsdam getting $8.9 million for flood prevention, stormwater management - The Malone Telegram",
+      "link": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxPVVc1ZVVPenliSUd1ekw5c1pvd2RMM0R4U0FmaTN6T25lSUpoMzRTNGtPbVpkRjBnN1RVSThVVzhRQUlKcTNFVEM1ZTNtcXpOUS1uMWtkS004YnpYUlNpV2RDMS0zcmtCYjhjZHFBVl9iaXpYeVlHbG5RWExXTGtZMzVENUcxc0Ewc0xrWkI1cTR1bXZLNFUzRXdSUWdRbnROc3NLbTFUZGM5d1ZVMllzcC14THVfYjNUUFZXbUVzaFVsdFlOTWt6a2o1QmdCQTltWWxZZWJmYWFWTXpMWWp3My1WMFhCSkZsZjFGZzl5NVBQTUtxMWl2LQ?oc=5",
+      "summary": "<a href=\"https://news.google.com/rss/articles/CBMi-AFBVV95cUxPVVc1ZVVPenliSUd1ekw5c1pvd2RMM0R4U0FmaTN6T25lSUpoMzRTNGtPbVpkRjBnN1RVSThVVzhRQUlKcTNFVEM1ZTNtcXpOUS1uMWtkS004YnpYUlNpV2RDMS0zcmtCYjhjZHFBVl9iaXpYeVlHbG5RWExXTGtZMzVENUcxc0Ewc0xrWkI1cTR1bXZLNFUzRXdSUWdRbnROc3NLbTFUZGM5d1ZVMllzcC14THVfYjNUUFZXbUVzaFVsdFlOTWt6a2o1QmdCQTltWWxZZWJmYWFWTXpMWWp3My1WMFhCSkZsZjFGZzl5NVBQTUtxMWl2LQ?oc=5\" target=\"_blank\">Potsdam getting $8.9 million for flood prevention, stormwater management</a>&nbsp;&nbsp;<font",
+      "published": "Thu, 13 Nov 2025 08:00:00 GMT",
+      "source": "google_news",
+      "feed_title": "\"TOP_STORIES\" - Google News",
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391749.jpg"
     },
     {
       "title": "Silicon Valley Bank collapse renews calls to address disparities impacting entrepreneurs of color",
@@ -169,22 +176,13 @@
       "image": "https://cdn.cnn.com/cnnnext/dam/assets/230410105412-08-silicon-valley-bank-svb-0310-super-169.jpg"
     },
     {
-      "title": "Wisner native publishes book - wpnews.com",
-      "link": "https://news.google.com/rss/articles/CBMiugFBVV95cUxNRHRtbFJvTE9pZmxTX3NBZE1WbURXRVlDTmxWdEZqRUx3cjBzaXd6U0Z2RTdFVW1BODVyVTVUZUpFTXp2U3FEMTlLY3I4MXZua2ZXUlpFZGFRYl9QdU5oUEg4MXNNYVhWX09ibzlzb3VQeUlPTmZSeWpKV1dLdzVMM1hCdkJTVkc5MnlaUUNVYndFRzBMQ2tGM21DS2RRR3UyTUxLU3FxZmdGNTRpeVF6clRtTXlETGhPOEE?oc=5",
-      "summary": "<a href=\"https://news.google.com/rss/articles/CBMiugFBVV95cUxNRHRtbFJvTE9pZmxTX3NBZE1WbURXRVlDTmxWdEZqRUx3cjBzaXd6U0Z2RTdFVW1BODVyVTVUZUpFTXp2U3FEMTlLY3I4MXZua2ZXUlpFZGFRYl9QdU5oUEg4MXNNYVhWX09ibzlzb3VQeUlPTmZSeWpKV1dLdzVMM1hCdkJTVkc5MnlaUUNVYndFRzBMQ2tGM21DS2RRR3UyTUxLU3FxZmdGNTRpeVF6clRtTXlETGhPOEE?oc=5\" target=\"_blank\">Wisner native publishes book</a>&nbsp;&nbsp;<font color=\"#6f6f6f\">wpnews.com</font>",
-      "published": "Thu, 08 Jan 2026 15:41:00 GMT",
-      "source": "google_news",
-      "feed_title": "\"TOP_STORIES\" - Google News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391669.jpg"
-    },
-    {
       "title": "‘They killed my sons’: chief of Nigerian village where jihadists massacred hundreds recounts night of terror",
       "link": "https://www.theguardian.com/world/2026/feb/05/nigeria-sends-troops-to-villages-attacked-by-jihadist-fighters",
       "summary": "<p>Umar Bio Salihu, 53, the local head of Woro in Kwara state, says gunmen ‘just came in and started shooting’</p><p>The traditional chief of a village in western Nigeria where <a href=\"https://www.theguardian.com/world/2026/feb/04/gunmen-west-nigeria-attack-red-cross\">jihadists massacred residents earlier this week</a> has recounted a night of terror during which the attackers killed two of his sons and kidnapped his wife and three daughters.</p><p>Umar Bio Salihu, the 53-year-old chief of Woro",
       "published": "Thu, 05 Feb 2026 20:33:00 GMT",
       "source": "guardian_world",
       "feed_title": "World news | The Guardian",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391749.jpg"
     },
     {
       "title": "Cuba open to talks with US ‘without pressure’ after months of Trump threats",
@@ -193,7 +191,7 @@
       "published": "Thu, 05 Feb 2026 18:26:26 GMT",
       "source": "guardian_world",
       "feed_title": "World news | The Guardian",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391749.jpg"
     },
     {
       "title": "Eight current and former Toronto police arrested in organized crime inquiry",
@@ -202,7 +200,7 @@
       "published": "Thu, 05 Feb 2026 17:34:41 GMT",
       "source": "guardian_world",
       "feed_title": "World news | The Guardian",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391749.jpg"
     },
     {
       "title": "Maduro’s alleged frontman Alex Saab reportedly detained in Caracas",
@@ -211,7 +209,7 @@
       "published": "Thu, 05 Feb 2026 10:30:34 GMT",
       "source": "guardian_world",
       "feed_title": "World news | The Guardian",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391749.jpg"
     },
     {
       "title": "Venezuela plan to turn notorious prison into cultural centre scrubs past horrors, critics say",
@@ -220,7 +218,7 @@
       "published": "Thu, 05 Feb 2026 10:00:04 GMT",
       "source": "guardian_world",
       "feed_title": "World news | The Guardian",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391749.jpg"
     },
     {
       "title": "Trump Says Colombia Will Accept Deportees, Ending Tariff Standoff",
@@ -229,7 +227,7 @@
       "published": "Sun, 26 Jan 2025 22:59:00 -0500",
       "source": "wsj_world",
       "feed_title": "WSJ.com: World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391749.jpg"
     },
     {
       "title": "Big-box stores could help slash emissions and save millions by putting solar panels on roofs. Why aren't more of them doing it?",
@@ -247,7 +245,7 @@
       "published": "Sun, 01 Feb 2026 00:00:00 GMT",
       "source": "unity_blog",
       "feed_title": "Unity Blog RSS Feed",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391749.jpg"
     },
     {
       "title": "Former Massena DPW chief shares concerns about county agreement - nny360.com",
@@ -256,7 +254,7 @@
       "published": "Sat, 31 Jan 2026 01:54:49 GMT",
       "source": "google_news",
       "feed_title": "\"TOP_STORIES\" - Google News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391749.jpg"
     },
     {
       "title": "Personnel Exchange Program Can Take You Places - MilitaryNews.com",
@@ -265,7 +263,7 @@
       "published": "Mon, 28 Oct 2013 07:00:00 GMT",
       "source": "google_news",
       "feed_title": "\"TOP_STORIES\" - Google News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391749.jpg"
     },
     {
       "title": "Palestinians Stream Back to Northern Gaza on Foot",
@@ -274,7 +272,7 @@
       "published": "Mon, 27 Jan 2025 14:23:00 -0500",
       "source": "wsj_world",
       "feed_title": "WSJ.com: World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391749.jpg"
     },
     {
       "title": "Leading China Property Developer Reports Huge loss, in Sign of Widening Real-Estate Woes",
@@ -283,7 +281,7 @@
       "published": "Mon, 27 Jan 2025 12:32:00 -0500",
       "source": "wsj_world",
       "feed_title": "WSJ.com: World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391749.jpg"
     },
     {
       "title": "Freed Israeli Hostages Still Had Shrapnel in Their Bodies From Oct. 7 Attack",
@@ -292,7 +290,7 @@
       "published": "Mon, 27 Jan 2025 12:12:00 -0500",
       "source": "wsj_world",
       "feed_title": "WSJ.com: World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391749.jpg"
     },
     {
       "title": "Suspected Sabotage of Deep-Sea Cable Triggers First NATO-Led Response",
@@ -301,7 +299,7 @@
       "published": "Mon, 27 Jan 2025 11:22:00 -0500",
       "source": "wsj_world",
       "feed_title": "WSJ.com: World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391749.jpg"
     },
     {
       "title": "Rwanda-Backed Rebels Enter Congo's Safe-Haven City",
@@ -310,7 +308,7 @@
       "published": "Mon, 27 Jan 2025 10:07:00 -0500",
       "source": "wsj_world",
       "feed_title": "WSJ.com: World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391749.jpg"
     },
     {
       "title": "Cocaine-Funded Gangs Shake Colombia Years After Peace Pact",
@@ -319,7 +317,7 @@
       "published": "Mon, 27 Jan 2025 07:00:00 -0500",
       "source": "wsj_world",
       "feed_title": "WSJ.com: World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391749.jpg"
     },
     {
       "title": "Italy Supports Saudi Arabia Joining Fighter-Jet Program, PM Meloni Says",
@@ -328,7 +326,7 @@
       "published": "Mon, 27 Jan 2025 05:34:00 -0500",
       "source": "wsj_world",
       "feed_title": "WSJ.com: World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391749.jpg"
     },
     {
       "title": "Shippers Wary of Red Sea Routes Despite Houthi Pledge to End Targeting",
@@ -337,7 +335,7 @@
       "published": "Mon, 27 Jan 2025 01:05:00 -0500",
       "source": "wsj_world",
       "feed_title": "WSJ.com: World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391749.jpg"
     },
     {
       "title": "Kim Jong Un Is Doing Everything He Can to Keep North Korea's Youth in Line",
@@ -346,7 +344,7 @@
       "published": "Mon, 27 Jan 2025 01:05:00 -0500",
       "source": "wsj_world",
       "feed_title": "WSJ.com: World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_wsj_world_1770391749.jpg"
     },
     {
       "title": "Not only is Lake Powell's water level plummeting because of drought, its total capacity is shrinking, too",
@@ -364,7 +362,7 @@
       "published": "Mon, 12 Jan 2026 08:00:00 GMT",
       "source": "google_news",
       "feed_title": "\"TOP_STORIES\" - Google News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_google_news_1770391749.jpg"
     },
     {
       "title": "5 top trends redefining industry in 2026",
@@ -373,7 +371,7 @@
       "published": "Mon, 12 Jan 2026 00:00:00 GMT",
       "source": "unity_blog",
       "feed_title": "Unity Blog RSS Feed",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391749.jpg"
     },
     {
       "title": "Still haven't filed your taxes? Here's what you need to know",
@@ -418,7 +416,7 @@
       "published": "Fri, 06 Feb 2026 15:19:58 +0000",
       "source": "nyt_world",
       "feed_title": "NYT > World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391750.jpg"
     },
     {
       "title": "Iranian foreign minister says US talks in Oman a 'good beginning'",
@@ -436,7 +434,7 @@
       "published": "Fri, 06 Feb 2026 15:02:52 +0000",
       "source": "nyt_world",
       "feed_title": "NYT > World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391750.jpg"
     },
     {
       "title": "Fisherman fleeing elephants killed by crocodile in Zambia",
@@ -454,7 +452,7 @@
       "published": "Fri, 06 Feb 2026 14:45:10 +0000",
       "source": "nyt_world",
       "feed_title": "NYT > World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391750.jpg"
     },
     {
       "title": "Suicide Bombing Kills 31 at Mosque in Pakistan’s Capital",
@@ -463,7 +461,7 @@
       "published": "Fri, 06 Feb 2026 14:25:27 +0000",
       "source": "nyt_world",
       "feed_title": "NYT > World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391750.jpg"
     },
     {
       "title": "More than 30 killed in blast at Pakistan mosque, officials say",
@@ -481,7 +479,7 @@
       "published": "Fri, 06 Feb 2026 14:01:39 +0000",
       "source": "nyt_world",
       "feed_title": "NYT > World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391750.jpg"
     },
     {
       "title": "TikTok told to change 'addictive design' by EU or face massive fines",
@@ -499,7 +497,7 @@
       "published": "Fri, 06 Feb 2026 13:33:15 GMT",
       "source": "guardian_world",
       "feed_title": "World news | The Guardian",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_guardian_world_1770391750.jpg"
     },
     {
       "title": "As Olympics Open, Pope Leo Warns Against Using Sports for ‘Propaganda or National Supremacy’",
@@ -508,7 +506,7 @@
       "published": "Fri, 06 Feb 2026 13:31:56 +0000",
       "source": "nyt_world",
       "feed_title": "NYT > World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391750.jpg"
     },
     {
       "title": "Coin portrait of late Queen draws criticism in Australia",
@@ -535,7 +533,7 @@
       "published": "Fri, 06 Feb 2026 09:27:18 +0000",
       "source": "nyt_world",
       "feed_title": "NYT > World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391750.jpg"
     },
     {
       "title": "Canada and France to open Greenland consulates after Trump demands",
@@ -553,7 +551,7 @@
       "published": "Fri, 06 Feb 2026 05:01:50 +0000",
       "source": "nyt_world",
       "feed_title": "NYT > World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391750.jpg"
     },
     {
       "title": "The Olympics Are a Show Of Global Harmony. The World is Anything But.",
@@ -562,7 +560,7 @@
       "published": "Fri, 06 Feb 2026 05:01:16 +0000",
       "source": "nyt_world",
       "feed_title": "NYT > World News",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_nyt_world_1770391750.jpg"
     },
     {
       "title": "Trump endorses Japan's Takaichi ahead of snap election",
@@ -598,34 +596,34 @@
       "published": "Fri, 02 Jan 2026 00:00:00 GMT",
       "source": "unity_blog",
       "feed_title": "Unity Blog RSS Feed",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_unity_blog_1770391750.jpg"
     },
     {
       "title": "Ustwo Games makes layoffs to facilitate 'PC-first' pivot",
       "link": "https://www.gamedeveloper.com/business/ustwo-games-makes-layoffs-to-support-pc-first-pivot",
       "summary": "",
-      "published": "2026-02-06T09:27:19.336472",
+      "published": "2026-02-06T09:28:41.317994",
       "source": "game_developer",
       "feed_title": "Game Developer",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_game_developer_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_game_developer_1770391750.jpg"
     },
     {
       "title": "Analyzing the 2026 GDC State Of The Industry Report - Game Developer Podcast Ep. 63",
       "link": "https://www.gamedeveloper.com/business/analyzing-the-2026-gdc-state-of-the-industry-report-game-developer-podcast-ep-63",
       "summary": "",
-      "published": "2026-02-06T09:27:19.336460",
+      "published": "2026-02-06T09:28:41.317984",
       "source": "game_developer",
       "feed_title": "Game Developer",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_game_developer_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_game_developer_1770391750.jpg"
     },
     {
       "title": "Four tips for pitching your game to investors and publishers",
       "link": "https://www.gamedeveloper.com/business/four-tips-for-pitching-your-game-to-investors-and-publishers",
       "summary": "",
-      "published": "2026-02-06T09:27:19.336429",
+      "published": "2026-02-06T09:28:41.317960",
       "source": "game_developer",
       "feed_title": "Game Developer",
-      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_game_developer_1770391669.jpg"
+      "image": "C:\\Users\\johnl\\.openclaw\\workspace\\placeholder_game_developer_1770391750.jpg"
     }
   ]
 }
