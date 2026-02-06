@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tools & Tech Products | NOOZ Recommendations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+        }
+        
+        .categories {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        
+        .category-btn {
+            padding: 10px 24px;
+            border: 1px solid #333;
+            border-radius: 30px;
+            background: transparent;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .category-btn:hover,
+        .category-btn.active {
+            background: #1a1a1a;
+            color: #fff;
+            border-color: #6366f1;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+        
+        .product-card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: #444;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        
+        .product-card:hover .affiliate-btn {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+        }
+        
+        .product-image {
+            height: 180px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .product-image img {
+            max-width: 80%;
+            max-height: 80%;
+            object-fit: contain;
+        }
+        
+        .sale-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #ef4444;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .product-info {
+            padding: 24px;
+        }
+        
+        .product-name {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+        
+        .product-description {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+        
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .stars {
+            color: #fbbf24;
+        }
+        
+        .rating .count {
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        .pricing {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .price {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        
+        .original-price {
+            color: #666;
+            text-decoration: line-through;
+            font-size: 1rem;
+        }
+        
+        .affiliate-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .disclosure {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #222;
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        .disclosure a {
+            color: #888;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+            border-radius: 24px;
+            padding: 60px 40px;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .hero-section h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+        
+        .hero-section p {
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ NOOZ Recommendations</h1>
+            <p class="subtitle">AI tools and tech products we actually use and recommend</p>
+        </header>
+        
+        <div class="categories">
+            <button class="category-btn active" data-category="all">All Tools</button>
+            <button class="category-btn" data-category="ai_tool">AI Tools</button>
+            <button class="category-btn" data-category="software">Software</button>
+            <button class="category-btn" data-category="hardware">Gadgets</button>
+            <button class="category-btn" data-category="course">Courses</button>
+        </div>
+        
+        <div class="hero-section">
+            <h2>🔮 Claude 4 is Coming</h2>
+            <p>New AI model promises smarter reasoning and better coding. Get early access with Claude Pro.</p>
+        </div>
+        
+        <div class="products-grid" id="products">
+            <!-- Products loaded dynamically -->
+        </div>
+        
+        <div class="disclosure">
+            <p>🌟 We may earn a commission when you click our links and make a purchase. 
+            This supports NOOZ and helps us keep the news free. 
+            <a href="#">Learn more about our affiliate policy</a></p>
+        </div>
+    </div>
+    
+    <script>
+        // Sample products (in production, load from Supabase)
+        const products = [
+            {
+                name: 'ChatGPT Plus',
+                description: 'Unlock GPT-4, DALL-E, and advanced voice mode. $20/month.',
+                price: '$20/mo',
+                rating: 4.7,
+                reviews: '15K',
+                category: 'ai_tool',
+                image: '🤖',
+                url: 'https://chat.openai.com/'
+            },
+            {
+                name: 'Claude Pro',
+                description: '200K context window. Sonnet 4 with smarter reasoning.',
+                price: '$20/mo',
+                rating: 4.85,
+                reviews: '8.5K',
+                category: 'ai_tool',
+                image: '🧠',
+                url: 'https://claude.com/'
+            },
+            {
+                name: 'Perplexity Pro',
+                description: 'AI search with sources. Find answers, not just links.',
+                price: '$20/mo',
+                rating: 4.6,
+                reviews: '5.2K',
+                category: 'ai_tool',
+                image: '🔍',
+                url: 'https://www.perplexity.ai/'
+            },
+            {
+                name: 'Cursor Pro',
+                description: 'AI-first code editor. Write code 2x faster.',
+                price: '$20/mo',
+                rating: 4.75,
+                reviews: '12K',
+                category: 'software',
+                image: '💻',
+                url: 'https://cursor.sh/'
+            },
+            {
+                name: 'Raycast Pro',
+                description: 'AI launcher for Mac. Save hours every week.',
+                price: '$12/mo',
+                rating: 4.8,
+                reviews: '6.5K',
+                category: 'software',
+                image: '⚡',
+                url: 'https://www.raycast.com/'
+            },
+            {
+                name: 'Midjourney',
+                description: 'Generate stunning AI images from text prompts.',
+                price: '$10/mo',
+                rating: 4.55,
+                reviews: '18K',
+                category: 'ai_tool',
+                image: '🎨',
+                url: 'https://www.midjourney.com/'
+            },
+            {
+                name: 'GitHub Copilot',
+                description: 'AI pair programmer. Code faster with autocomplete.',
+                price: '$10/mo',
+                rating: 4.65,
+                reviews: '25K',
+                category: 'software',
+                image: '🐙',
+                url: 'https://github.com/features/copilot'
+            },
+            {
+                name: 'Linear',
+                description: 'Streamlined issue tracking for high-performing teams.',
+                price: '$12/mo',
+                rating: 4.7,
+                reviews: '4.2K',
+                category: 'software',
+                image: '📋',
+                url: 'https://linear.app/'
+            },
+            {
+                name: 'AI Bootcamp',
+                description: 'Complete ML, Deep Learning, and LLMs course.',
+                price: '$19.99',
+                rating: 4.6,
+                reviews: '52K',
+                category: 'course',
+                image: '🎓',
+                url: 'https://www.udemy.com/course/ai-machine-learning/'
+            }
+        ]
+        
+        function renderProducts(filter = 'all') {
+            const grid = document.getElementById('products')
+            const filtered = filter === 'all' 
+                ? products 
+                : products.filter(p => p.category === filter)
+            
+            grid.innerHTML = filtered.map(p => `
+                <div class="product-card" onclick="window.open('${p.url}', '_blank')">
+                    <div class="product-image">
+                        <span style="font-size: 64px;">${p.image}</span>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${p.name}</h3>
+                        <p class="product-description">${p.description}</p>
+                        <div class="rating">
+                            <span class="stars">⭐ ${p.rating}</span>
+                            <span class="count">(${p.reviews})</span>
+                        </div>
+                        <div class="pricing">
+                            <span class="price">${p.price}</span>
+                        </div>
+                        <button class="affiliate-btn">Get Started →</button>
+                    </div>
+                </div>
+            `).join('')
+        }
+        
+        // Category filtering
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'))
+                e.target.classList.add('active')
+                renderProducts(e.target.dataset.category)
+            })
+        })
+        
+        // Initial render
+        renderProducts()
+    </script>
+</body>
+</html>
