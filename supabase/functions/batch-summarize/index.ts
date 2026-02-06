@@ -54,35 +54,70 @@
  
  Write in a professional, journalistic tone. Be specific with facts—use actual names, numbers, and places from the article rather than vague references.`;
  
- interface Article {
-   id: string;
-   title: string;
- }
- 
- interface SummarizeResult {
-   articleId: string;
-   success: boolean;
-   error?: string;
- }
- 
- // Summarize a single article
- async function summarizeArticle(
-   article: Article,
-   supabaseUrl: string,
-   serviceRoleKey: string,
-   providerUrl: string,
-   providerModel: string,
-   apiKey: string
- ): Promise<SummarizeResult> {
-   const supabase = createClient(supabaseUrl, serviceRoleKey);
-   
-   try {
-     const content = article.title;
-     if (content.length < 20) {
-       return { articleId: article.id, success: false, error: "Content too short" };
-     }
- 
-     const truncatedContent = content.slice(0, 8000);
+interface Article {
+  id: string;
+  title: string;
+  original_url: string;
+}
+
+interface SummarizeResult {
+  articleId: string;
+  success: boolean;
+  error?: string;
+}
+
+// Fetch article content using Firecrawl
+async function fetchArticleContent(url: string, firecrawlKey: string): Promise<string | null> {
+  try {
+    const response = await fetch("https://api.firecrawl.dev/v1/scrape", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${firecrawlKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url,
+        formats: ["markdown"],
+        onlyMainContent: true,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`Firecrawl error for ${url}:`, response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.data?.markdown || data.data?.content || null;
+  } catch (error) {
+    console.error(`Failed to fetch content for ${url}:`, error);
+    return null;
+  }
+}
+
+// Summarize a single article
+async function summarizeArticle(
+  article: Article,
+  supabaseUrl: string,
+  serviceRoleKey: string,
+  providerUrl: string,
+  providerModel: string,
+  apiKey: string,
+  firecrawlKey: string
+): Promise<SummarizeResult> {
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  
+  try {
+    // Fetch article content from original URL
+    const content = await fetchArticleContent(article.original_url, firecrawlKey);
+    
+    if (!content || content.length < 100) {
+      // Fall back to title-only summarization if content fetch fails
+      console.log(`Using title-only for ${article.id} (content unavailable)`);
+    }
+
+    const articleText = content || article.title;
+    const truncatedContent = articleText.slice(0, 12000);
  
      const aiResponse = await fetch(providerUrl, {
        method: "POST",
@@ -205,11 +240,17 @@
        });
      }
  
-     // Get AI provider
-     const { provider, apiKey } = getAIProvider();
-     const providerConfig = AI_PROVIDERS[provider];
-     
-     console.log(`Batch summarization using ${provider} (${providerConfig.model})`);
+      // Get AI provider
+      const { provider, apiKey } = getAIProvider();
+      const providerConfig = AI_PROVIDERS[provider];
+      
+      // Get Firecrawl API key
+      const firecrawlKey = Deno.env.get("FIRECRAWL_API_KEY");
+      if (!firecrawlKey) {
+        throw new Error("FIRECRAWL_API_KEY is not configured");
+      }
+      
+      console.log(`Batch summarization using ${provider} (${providerConfig.model})`);
  
      // Use service role for DB operations
      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
@@ -225,13 +266,13 @@
        // Use default limit
      }
  
-     // Fetch pending articles
-     const { data: articles, error: fetchError } = await supabase
-       .from("articles")
-       .select("id, title")
-       .eq("status", "pending")
-       .order("created_at", { ascending: false })
-       .limit(limit);
+      // Fetch pending articles
+      const { data: articles, error: fetchError } = await supabase
+        .from("articles")
+        .select("id, title, original_url")
+        .eq("status", "pending")
+        .order("created_at", { ascending: false })
+        .limit(limit);
  
      if (fetchError) {
        throw new Error(`Failed to fetch articles: ${fetchError.message}`);
@@ -246,29 +287,30 @@
  
      console.log(`Processing ${articles.length} pending articles in parallel...`);
  
-     // Process articles in parallel (max 5 concurrent)
-     const CONCURRENCY = 5;
-     const results: SummarizeResult[] = [];
-     
-     for (let i = 0; i < articles.length; i += CONCURRENCY) {
-       const batch = articles.slice(i, i + CONCURRENCY);
-       const batchResults = await Promise.all(
-         batch.map((article) => summarizeArticle(
-           article as Article,
-           SUPABASE_URL,
-           SUPABASE_SERVICE_ROLE_KEY,
-           providerConfig.url,
-           providerConfig.model,
-           apiKey
-         ))
-       );
-       results.push(...batchResults);
-       
-       // Small delay between batches to avoid rate limits
-       if (i + CONCURRENCY < articles.length) {
-         await new Promise((resolve) => setTimeout(resolve, 500));
-       }
-     }
+      // Process articles in parallel (max 3 concurrent to avoid rate limits with Firecrawl)
+      const CONCURRENCY = 3;
+      const results: SummarizeResult[] = [];
+      
+      for (let i = 0; i < articles.length; i += CONCURRENCY) {
+        const batch = articles.slice(i, i + CONCURRENCY);
+        const batchResults = await Promise.all(
+          batch.map((article) => summarizeArticle(
+            article as Article,
+            SUPABASE_URL,
+            SUPABASE_SERVICE_ROLE_KEY,
+            providerConfig.url,
+            providerConfig.model,
+            apiKey,
+            firecrawlKey
+          ))
+        );
+        results.push(...batchResults);
+        
+        // Longer delay between batches to avoid rate limits with content fetching
+        if (i + CONCURRENCY < articles.length) {
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+        }
+      }
  
      const successCount = results.filter((r) => r.success).length;
      const failedCount = results.filter((r) => !r.success).length;
