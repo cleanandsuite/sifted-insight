@@ -90,7 +90,7 @@ export const useArticles = () => {
   };
 };
 
-// Hook to fetch articles with category diversity and pagination
+// Hook to fetch articles with free ranking and pagination
 export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
   const [featuredArticle, setFeaturedArticle] = useState<Article | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
@@ -107,7 +107,7 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
   const normalizedCategory = (categoryFilter?.toLowerCase().trim() || null) as ContentCategory | null;
   const isValidCategory = normalizedCategory !== null && ALL_CATEGORIES.includes(normalizedCategory);
 
-  // Initial fetch - ensures category diversity
+  // Initial fetch - uses pure ranking system
   const fetchInitial = async () => {
     try {
       setLoading(true);
@@ -115,104 +115,49 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
       setOffset(0);
       setHasMore(true);
 
-      // If filtering by a valid category, just fetch that category
-      if (isValidCategory) {
-        const { data: featured, error: featuredError } = await supabase
-          .from('articles')
-          .select('*, sources(*), summaries(*)')
-          .in('status', VALID_STATUSES)
-          .eq('content_category', normalizedCategory)
-          .order('rank_score', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (featuredError) throw featuredError;
-        if (featured) {
-          setFeaturedArticle(transformArticle(featured));
-        } else {
-          setFeaturedArticle(null);
-        }
-
-        const { data: regular, error: regularError } = await supabase
-          .from('articles')
-          .select('*, sources(*), summaries(*)')
-          .in('status', VALID_STATUSES)
-          .eq('content_category', normalizedCategory)
-          .order('rank_score', { ascending: false })
-          .range(1, INITIAL_LOAD);
-
-        if (regularError) throw regularError;
-
-        const fetchedArticles = (regular || []).map(transformArticle);
-        setArticles(fetchedArticles);
-        setOffset(INITIAL_LOAD + 1);
-        setHasMore(fetchedArticles.length === INITIAL_LOAD);
-        return;
-      }
-
-      // No filter - fetch with category diversity
-      // First, fetch the featured article
-      const { data: featured, error: featuredError } = await supabase
+      // Build base query
+      let query = supabase
         .from('articles')
         .select('*, sources(*), summaries(*)')
-        .eq('is_featured', true)
         .in('status', VALID_STATUSES)
-        .order('rank_score', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .order('rank_score', { ascending: false });
+
+      // Apply category filter if present
+      if (isValidCategory) {
+        query = query.eq('content_category', normalizedCategory);
+      }
+
+      // Fetch featured article (highest ranked)
+      const { data: featured, error: featuredError } = await query.limit(1).maybeSingle();
 
       if (featuredError) throw featuredError;
+      
       if (featured) {
         setFeaturedArticle(transformArticle(featured));
+      } else {
+        setFeaturedArticle(null);
       }
 
-      // Fetch top articles ensuring at least one from each category
-      const seenIds = new Set<string>();
-      if (featured) seenIds.add(featured.id);
+      // Fetch next articles (excluding featured) - pure rank_score ordering
+      let articlesQuery = supabase
+        .from('articles')
+        .select('*, sources(*), summaries(*)')
+        .in('status', VALID_STATUSES)
+        .order('rank_score', { ascending: false });
 
-      // First, get one article from each category for diversity
-      const categoryArticles: Article[] = [];
-      for (const category of ALL_CATEGORIES) {
-        const { data, error } = await supabase
-          .from('articles')
-          .select('*, sources(*), summaries(*)')
-          .in('status', VALID_STATUSES)
-          .eq('content_category', category)
-          .order('rank_score', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (!error && data && !seenIds.has(data.id)) {
-          categoryArticles.push(transformArticle(data));
-          seenIds.add(data.id);
-        }
+      if (isValidCategory) {
+        articlesQuery = articlesQuery.eq('content_category', normalizedCategory);
       }
 
-      // Now fetch more articles by ranking to reach at least INITIAL_LOAD
-      const remaining = INITIAL_LOAD - categoryArticles.length;
-      if (remaining > 0) {
-        const excludeIds = Array.from(seenIds);
-        const { data: moreArticles, error: moreError } = await supabase
-          .from('articles')
-          .select('*, sources(*), summaries(*)')
-          .in('status', VALID_STATUSES)
-          .not('id', 'in', `(${excludeIds.join(',')})`)
-          .order('rank_score', { ascending: false })
-          .limit(remaining);
+      // Skip the featured article
+      const { data: regular, error: regularError } = await articlesQuery.range(1, INITIAL_LOAD);
 
-        if (!moreError && moreArticles) {
-          for (const article of moreArticles) {
-            if (!seenIds.has(article.id)) {
-              categoryArticles.push(transformArticle(article));
-              seenIds.add(article.id);
-            }
-          }
-        }
-      }
+      if (regularError) throw regularError;
 
-      setArticles(categoryArticles);
-      setOffset(categoryArticles.length);
-      setHasMore(true);
+      const fetchedArticles = (regular || []).map(transformArticle);
+      setArticles(fetchedArticles);
+      setOffset(INITIAL_LOAD + 1);
+      setHasMore(fetchedArticles.length === INITIAL_LOAD);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch articles'));
     } finally {
