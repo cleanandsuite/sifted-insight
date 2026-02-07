@@ -1,144 +1,180 @@
 
 
-## Plan: Build Comprehensive Python RSS News Scraper
+# OG Image Generation with Headline & CTA
 
-### Overview
-Create a standalone Python RSS scraper that fetches articles from all configured tech news sources, extracts featured images using multiple methods, deduplicates by normalized title, and outputs to a JSON file. This script uses standard Python libraries (requests + xml.etree.ElementTree) as requested.
-
----
-
-### All RSS Feeds to Include
-
-Combining the user's requested feeds with existing database sources:
-
-| Category | Source | RSS URL |
-|----------|--------|---------|
-| Tech | TechCrunch | https://techcrunch.com/feed/ |
-| Tech | The Verge | https://www.theverge.com/rss/index.xml |
-| Tech | Wired | https://www.wired.com/feed/rss |
-| Tech | Ars Technica | https://feeds.arstechnica.com/arstechnica/index |
-| Tech | MIT Technology Review | https://www.technologyreview.com/feed/ |
-| Finance | Bloomberg | https://www.bloomberg.com/feeds/sitemap_news.xml |
-| Finance | CNBC | https://www.cnbc.com/id/100003114/device/rss/rss.html |
-| Finance | MarketWatch | https://feeds.marketwatch.com/marketwatch/topstories/ |
-| Finance | Reuters Business | https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best&best-type=reuters-best-business-news |
-| Video Games | Polygon | https://www.polygon.com/rss/index.xml |
-| Video Games | Eurogamer | https://www.eurogamer.net/?format=rss |
-| Video Games | IGN | https://feeds.feedburner.com/ign/games-all |
-| Video Games | Ars Technica Gaming | https://feeds.arstechnica.com/arstechnica/gaming |
-| Video Games | The Verge Gaming | https://www.theverge.com/rss/games/index.xml |
-| Video Games | Wired Gaming | https://www.wired.com/feed/category/games/latest/rss |
-| Politics | Politico | https://rss.politico.com/politics-news.xml |
-| Politics | The Hill | https://thehill.com/news/feed/ |
-| Politics | NPR Politics | https://feeds.npr.org/1014/rss.xml |
-| Politics | BBC Politics | https://feeds.bbci.co.uk/news/politics/rss.xml |
-| Climate | Grist | https://grist.org/feed/ |
-| Climate | Yale E360 | https://e360.yale.edu/feed |
-| Climate | Guardian Environment | https://www.theguardian.com/environment/rss |
-| Climate | Inside Climate News | https://insideclimatenews.org/feed/ |
-| Crypto | Cointelegraph | https://cointelegraph.com/rss |
-| Crypto | CoinDesk | https://www.coindesk.com/arc/outboundfeeds/rss/ |
-| Crypto | Decrypt | https://decrypt.co/feed |
-| General | Google News | https://news.google.com/rss |
-| General | BBC Technology | https://feeds.bbci.co.uk/news/technology/rss.xml |
+## Overview
+Create a dynamic image generation system that produces Facebook-optimized OG images with:
+- **Article headline** (50-60 characters max)
+- **Call-to-action**: "NOOZ is the new news" (or similar tagline)
+- **Dimensions**: 1200x600 pixels
+- **Size**: Under 600KB
 
 ---
 
-### Script Architecture
+## Visual Design
 
 ```text
-scrape_rss.py
-     │
-     ├─► fetch_feed(name, url)
-     │       ├── HTTP GET with requests
-     │       ├── Parse XML with ElementTree
-     │       └── Return list of articles
-     │
-     ├─► extract_image_url(entry)
-     │       ├── Method 1: media:content tag
-     │       ├── Method 2: media:thumbnail tag
-     │       ├── Method 3: enclosure with image type
-     │       └── Method 4: img tag in description
-     │
-     ├─► normalize_title(title)
-     │       ├── Lowercase
-     │       ├── Remove special characters
-     │       └── Collapse whitespace
-     │
-     ├─► deduplicate(articles)
-     │       └── Remove duplicates by normalized title
-     │
-     └─► main()
-             ├── Loop through all feeds
-             ├── Aggregate articles
-             ├── Deduplicate
-             └── Save to scraped_articles.json
+┌────────────────────────────────────────────────────────────────┐
+│                                                                │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                                                          │  │
+│  │              [Article Background Image]                  │  │
+│  │                  (with dark overlay)                     │  │
+│  │                                                          │  │
+│  │  ┌────────────────────────────────────────────────────┐  │  │
+│  │  │                                                    │  │  │
+│  │  │   "Apple Partners With OpenAI on                   │  │  │
+│  │  │    Revolutionary AI Features..."                   │  │  │
+│  │  │                                                    │  │  │
+│  │  │              ── HEADLINE (50-60 chars) ──          │  │  │
+│  │  │                                                    │  │  │
+│  │  └────────────────────────────────────────────────────┘  │  │
+│  │                                                          │  │
+│  │        ═══════════════════════════════════════           │  │
+│  │                                                          │  │
+│  │              NOOZ is the new news.                       │  │
+│  │                     ── CTA ──                            │  │
+│  │                                                          │  │
+│  │  [NOOZ.NEWS logo/branding]                               │  │
+│  │                                                          │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+
+Dimensions: 1200 x 600 pixels
 ```
 
 ---
 
-### File to Create
+## Technical Approach
 
-**`scrape_rss.py`** - Complete Python script with:
+Since Deno Edge Functions have limited image manipulation libraries, we'll use **SVG-to-PNG rendering** via the `@vercel/og` compatible approach or pure SVG with embedded base64 background.
 
-1. **Feed Configuration**: All 30+ RSS feeds organized by category
-2. **HTTP Fetching**: Using `requests` library with timeout and error handling
-3. **XML Parsing**: Using `xml.etree.ElementTree` with namespace handling
-4. **Image Extraction**: 4-method approach for finding featured images:
-   - `media:content` tag (Media RSS namespace)
-   - `media:thumbnail` tag
-   - `enclosure` tag with image MIME type
-   - `<img>` tag extraction from description HTML
-5. **Title Normalization**: Lowercase, strip punctuation, collapse whitespace
-6. **Deduplication**: Set-based deduplication by normalized title
-7. **JSON Output**: Save to `scraped_articles.json`
+### Option A: SVG with Embedded Image (Recommended)
+1. Fetch the source article image
+2. Convert to base64
+3. Generate SVG with text overlays
+4. Convert SVG to PNG using `resvg-wasm`
+
+### Option B: HTML Canvas Rendering
+Use Satori (from Vercel) which renders JSX to SVG, then convert to PNG.
 
 ---
 
-### Output JSON Format
+## Implementation Steps
 
-```json
-[
-  {
-    "title": "Article Headline",
-    "source": "TechCrunch",
-    "image": "https://example.com/featured-image.jpg",
-    "scraped_at": "2026-02-06T15:00:00.000Z"
-  }
-]
+### Step 1: Create `generate-og-image` Edge Function
+
+**New file:** `supabase/functions/generate-og-image/index.ts`
+
+This function will:
+1. Accept `articleId` as a query parameter
+2. Fetch article data (title, image_url)
+3. Truncate headline to 55 characters
+4. Generate SVG with:
+   - Background image (darkened overlay)
+   - Headline text (bold, white, centered)
+   - CTA text: "NOOZ is the new news."
+   - NOOZ.NEWS branding
+5. Convert SVG to PNG using `resvg-wasm`
+6. Return optimized image under 600KB
+
+**Text specifications:**
+- Headline: Inter Bold, ~48px, white, max 2 lines
+- CTA: Inter Regular, ~24px, white/light gray
+- Max headline length: 55 characters (truncate with "...")
+
+### Step 2: Update Meta Tag Components
+
+**Modified files:**
+- `src/components/ArticleMetaTags.tsx`
+- `supabase/functions/share-meta/index.ts`
+
+Changes:
+- Update `og:image` to point to the new generator endpoint
+- Update dimensions to 1200x600
+- URL format: `/functions/v1/generate-og-image?id={articleId}`
+
+---
+
+## Text Content
+
+| Element | Content | Max Length |
+|---------|---------|------------|
+| Headline | Article title (truncated) | 55 characters |
+| CTA | "NOOZ is the new news." | 22 characters |
+| Branding | "NOOZ.NEWS" | 9 characters |
+
+**Total text on image**: ~86 characters max (well within guidelines)
+
+---
+
+## Files to Create/Modify
+
+| Action | File | Purpose |
+|--------|------|---------|
+| Create | `supabase/functions/generate-og-image/index.ts` | Dynamic OG image generator with text overlays |
+| Modify | `src/components/ArticleMetaTags.tsx` | Point to new generator, update to 1200x600 |
+| Modify | `supabase/functions/share-meta/index.ts` | Point to new generator, update to 1200x600 |
+
+---
+
+## Technical Details
+
+### SVG Template Structure
+
+The generated SVG will include:
+1. **Background**: Article image as base64, scaled to cover
+2. **Dark overlay**: Semi-transparent black gradient for text readability
+3. **Headline**: White text, bold, centered, wrapped to 2 lines max
+4. **Separator line**: Subtle divider
+5. **CTA**: "NOOZ is the new news." in lighter weight
+6. **Logo**: NOOZ.NEWS text or favicon in corner
+
+### Image Processing
+
+Using `resvg-wasm` for SVG-to-PNG conversion:
+- Input: SVG with embedded fonts and images
+- Output: PNG at 1200x600
+- Compression: PNG optimization to stay under 600KB
+
+### Font Handling
+
+Since we can't load custom fonts in Edge Functions easily, we'll:
+- Use system fonts: `system-ui, -apple-system, sans-serif`
+- Or embed Inter as base64 in the SVG (increases size but ensures consistency)
+
+---
+
+## Caching Strategy
+
+```
+Cache-Control: public, max-age=86400, s-maxage=604800
 ```
 
----
-
-### Technical Implementation Details
-
-#### Namespace Handling for Media RSS
-```python
-NAMESPACES = {
-    'media': 'http://search.yahoo.com/mrss/',
-    'content': 'http://purl.org/rss/1.0/modules/content/',
-    'atom': 'http://www.w3.org/2005/Atom'
-}
-```
-
-#### Image Extraction Priority
-1. `{http://search.yahoo.com/mrss/}content` - most common for news
-2. `{http://search.yahoo.com/mrss/}thumbnail` - fallback
-3. `enclosure[@type="image/*"]` - podcast-style feeds
-4. Regex extraction from `description` HTML content
-
-#### Error Handling
-- Timeout after 15 seconds per feed
-- Continue on individual feed failures
-- Log errors without crashing
-- Skip articles with missing required fields (title)
+- Generated images cached for 24 hours in browser
+- CDN caches for 7 days
+- Reduces regeneration load
 
 ---
 
-### Requirements
-- Python 3.x
-- `requests` library (for HTTP)
-- `xml.etree.ElementTree` (built-in, for XML parsing)
+## Fallback Handling
 
-No external dependencies beyond `requests` (standard in most Python environments).
+If image generation fails:
+1. Use a pre-made static OG image with just branding
+2. Located at `public/og-image.png` (update to 1200x600 with CTA)
+
+---
+
+## Example Output
+
+**Article**: "Apple Partners With OpenAI to Revolutionize Siri AI"
+
+**Generated OG Image**:
+- Background: Original article image (darkened)
+- Headline: "Apple Partners With OpenAI to Revolutionize..."
+- CTA: "NOOZ is the new news."
+- Branding: NOOZ.NEWS logo in corner
+- Size: ~300-500KB (JPEG/PNG optimized)
+- Dimensions: 1200x600
 
