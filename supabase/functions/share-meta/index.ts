@@ -48,14 +48,15 @@ Deno.serve(async (req) => {
       return new Response("Article not found", { status: 404 });
     }
 
-    // Determine the best image to use
-    const imageUrl = article.media_url || article.image_url || "https://nooz.news/og-image.png";
+    // Use the dynamic OG image generator endpoint
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "https://hqjszktwczdnyyomllzd.supabase.co";
+    const ogImageUrl = `${supabaseUrl}/functions/v1/generate-og-image?id=${article.id}`;
+    
     const siteName = "NOOZ.NEWS";
     const siteUrl = "https://nooz.news";
     const articleUrl = `${siteUrl}/article/${article.id}`;
     const description = article.summary || `Read the latest on ${article.topic || 'trending news'} from ${siteName}`;
     const authorName = article.author || "NOOZ.NEWS Staff";
-    const sourceName = (article.sources as any)?.name || siteName;
     const publishedDate = article.published_at ? new Date(article.published_at).toISOString() : new Date().toISOString();
     const tags = article.tags?.join(", ") || article.topic || "news";
     
@@ -80,9 +81,9 @@ Deno.serve(async (req) => {
   <meta property="fb:app_id" content="911566732049336">
   
   <!-- Open Graph / Facebook - Order: image, url, title, description -->
-  <meta property="og:image" content="${imageUrl}">
+  <meta property="og:image" content="${ogImageUrl}">
   <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
+  <meta property="og:image:height" content="600">
   <meta property="og:url" content="${articleUrl}">
   <meta property="og:title" content="${escapeHtml(truncatedTitle)}">
   <meta property="og:description" content="${escapeHtml(description)}">
@@ -94,7 +95,7 @@ Deno.serve(async (req) => {
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="${imageUrl}">
+  <meta name="twitter:image" content="${ogImageUrl}">
   <meta name="twitter:url" content="${articleUrl}">
   <meta name="twitter:title" content="${escapeHtml(truncatedTitle)}">
   <meta name="twitter:description" content="${escapeHtml(description)}">

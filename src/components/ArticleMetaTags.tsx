@@ -24,8 +24,11 @@ export const ArticleMetaTags = ({
   const siteUrl = "https://nooz.news";
   const articleUrl = `${siteUrl}/article/${articleId}`;
   const siteName = "NOOZ.NEWS";
-  const defaultImage = `${siteUrl}/og-image.png`;
-  const image = imageUrl || defaultImage;
+  
+  // Use the dynamic OG image generator endpoint
+  const supabaseUrl = "https://hqjszktwczdnyyomllzd.supabase.co";
+  const ogImageUrl = `${supabaseUrl}/functions/v1/generate-og-image?id=${articleId}`;
+  
   const publishedDate = publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString();
   const keywords = tags.length > 0 ? tags.join(", ") : topic;
 
@@ -45,9 +48,9 @@ export const ArticleMetaTags = ({
       <meta property="fb:app_id" content="911566732049336" />
       
       {/* Open Graph / Facebook - Order: image, url, title, description */}
-      <meta property="og:image" content={image} />
+      <meta property="og:image" content={ogImageUrl} />
       <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
+      <meta property="og:image:height" content="600" />
       <meta property="og:url" content={articleUrl} />
       <meta property="og:title" content={truncatedTitle} />
       <meta property="og:description" content={description} />
@@ -59,7 +62,7 @@ export const ArticleMetaTags = ({
       
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:image" content={image} />
+      <meta name="twitter:image" content={ogImageUrl} />
       <meta name="twitter:url" content={articleUrl} />
       <meta name="twitter:title" content={truncatedTitle} />
       <meta name="twitter:description" content={description} />
@@ -73,7 +76,7 @@ export const ArticleMetaTags = ({
           "@context": "https://schema.org",
           "@type": "NewsArticle",
           "headline": title,
-          "image": [image],
+          "image": [imageUrl || ogImageUrl],
           "datePublished": publishedDate,
           "dateModified": publishedDate,
           "author": {
