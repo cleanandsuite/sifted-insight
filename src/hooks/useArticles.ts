@@ -107,7 +107,7 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
   const normalizedCategory = (categoryFilter?.toLowerCase().trim() || null) as ContentCategory | null;
   const isValidCategory = normalizedCategory !== null && ALL_CATEGORIES.includes(normalizedCategory);
 
-  // Initial fetch - uses pure ranking system
+  // Initial fetch - uses pure ranking system, featured must be tech
   const fetchInitial = async () => {
     try {
       setLoading(true);
@@ -115,20 +115,15 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
       setOffset(0);
       setHasMore(true);
 
-      // Build base query
-      let query = supabase
+      // Featured article must be tech (highest ranked tech article)
+      const { data: featured, error: featuredError } = await supabase
         .from('articles')
         .select('*, sources(*), summaries(*)')
         .in('status', VALID_STATUSES)
-        .order('rank_score', { ascending: false });
-
-      // Apply category filter if present
-      if (isValidCategory) {
-        query = query.eq('content_category', normalizedCategory);
-      }
-
-      // Fetch featured article (highest ranked)
-      const { data: featured, error: featuredError } = await query.limit(1).maybeSingle();
+        .eq('content_category', 'tech')
+        .order('rank_score', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (featuredError) throw featuredError;
       
@@ -149,14 +144,18 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
         articlesQuery = articlesQuery.eq('content_category', normalizedCategory);
       }
 
-      // Skip the featured article
-      const { data: regular, error: regularError } = await articlesQuery.range(1, INITIAL_LOAD);
+      // Exclude the featured article if we have one
+      if (featured) {
+        articlesQuery = articlesQuery.neq('id', featured.id);
+      }
+
+      const { data: regular, error: regularError } = await articlesQuery.limit(INITIAL_LOAD);
 
       if (regularError) throw regularError;
 
       const fetchedArticles = (regular || []).map(transformArticle);
       setArticles(fetchedArticles);
-      setOffset(INITIAL_LOAD + 1);
+      setOffset(INITIAL_LOAD);
       setHasMore(fetchedArticles.length === INITIAL_LOAD);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch articles'));
