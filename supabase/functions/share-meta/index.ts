@@ -58,6 +58,9 @@ Deno.serve(async (req) => {
     const sourceName = (article.sources as any)?.name || siteName;
     const publishedDate = article.published_at ? new Date(article.published_at).toISOString() : new Date().toISOString();
     const tags = article.tags?.join(", ") || article.topic || "news";
+    
+    // Truncate title to optimal 50-60 characters for social sharing
+    const truncatedTitle = article.title.length > 55 ? article.title.substring(0, 52) + "..." : article.title;
 
     // Generate HTML with comprehensive OG tags
     const html = `<!DOCTYPE html>
@@ -67,20 +70,23 @@ Deno.serve(async (req) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- Primary Meta Tags -->
-  <title>${escapeHtml(article.title)} | ${siteName}</title>
-  <meta name="title" content="${escapeHtml(article.title)} | ${siteName}">
+  <title>${escapeHtml(truncatedTitle)} | ${siteName}</title>
+  <meta name="title" content="${escapeHtml(truncatedTitle)} | ${siteName}">
   <meta name="description" content="${escapeHtml(description)}">
   <meta name="author" content="${escapeHtml(authorName)}">
   <meta name="keywords" content="${escapeHtml(tags)}">
   
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="article">
-  <meta property="og:url" content="${articleUrl}">
-  <meta property="og:title" content="${escapeHtml(article.title)}">
-  <meta property="og:description" content="${escapeHtml(description)}">
+  <!-- Facebook Ad Account -->
+  <meta property="fb:app_id" content="911566732049336">
+  
+  <!-- Open Graph / Facebook - Order: image, url, title, description -->
   <meta property="og:image" content="${imageUrl}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:url" content="${articleUrl}">
+  <meta property="og:title" content="${escapeHtml(truncatedTitle)}">
+  <meta property="og:description" content="${escapeHtml(description)}">
+  <meta property="og:type" content="article">
   <meta property="og:site_name" content="${siteName}">
   <meta property="article:published_time" content="${publishedDate}">
   <meta property="article:author" content="${escapeHtml(authorName)}">
@@ -88,10 +94,10 @@ Deno.serve(async (req) => {
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:url" content="${articleUrl}">
-  <meta name="twitter:title" content="${escapeHtml(article.title)}">
-  <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${imageUrl}">
+  <meta name="twitter:url" content="${articleUrl}">
+  <meta name="twitter:title" content="${escapeHtml(truncatedTitle)}">
+  <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:site" content="@NoozNews">
   
   <!-- Canonical -->
