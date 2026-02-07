@@ -49,6 +49,38 @@ export type Database = {
           },
         ]
       }
+      article_interactions: {
+        Row: {
+          article_id: string
+          created_at: string | null
+          id: string
+          interaction_type: string
+          user_session_id: string | null
+        }
+        Insert: {
+          article_id: string
+          created_at?: string | null
+          id?: string
+          interaction_type: string
+          user_session_id?: string | null
+        }
+        Update: {
+          article_id?: string
+          created_at?: string | null
+          id?: string
+          interaction_type?: string
+          user_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_interactions_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       articles: {
         Row: {
           author: string | null
@@ -349,6 +381,38 @@ export type Database = {
         }
         Relationships: []
       }
+      source_authority: {
+        Row: {
+          authority_score: number | null
+          created_at: string | null
+          id: string
+          source_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          authority_score?: number | null
+          created_at?: string | null
+          id?: string
+          source_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          authority_score?: number | null
+          created_at?: string | null
+          id?: string
+          source_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_authority_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: true
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sources: {
         Row: {
           content_category:
@@ -501,6 +565,10 @@ export type Database = {
         Args: { article_id: string }
         Returns: number
       }
+      calculate_sift_score_v4: {
+        Args: { article_uuid: string }
+        Returns: number
+      }
       calculate_topic_relevance_score: {
         Args: { article_id: string }
         Returns: number
@@ -516,6 +584,28 @@ export type Database = {
           original_url: string
           published_at: string
           rank_score: number
+          sifted_read_time: number
+          source_id: string
+          tags: string[]
+          title: string
+          topic: string
+        }[]
+      }
+      get_ranked_feed_v4: {
+        Args: {
+          category_filter?: Database["public"]["Enums"]["content_category"]
+          limit_count?: number
+        }
+        Returns: {
+          author: string
+          content_category: Database["public"]["Enums"]["content_category"]
+          id: string
+          image_url: string
+          media_url: string
+          original_read_time: number
+          original_url: string
+          published_at: string
+          sift_score: number
           sifted_read_time: number
           source_id: string
           tags: string[]
@@ -567,6 +657,14 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      track_article_interaction: {
+        Args: {
+          p_article_id: string
+          p_interaction_type: string
+          p_session_id?: string
+        }
+        Returns: undefined
+      }
       upsert_article: {
         Args: {
           p_author?: string

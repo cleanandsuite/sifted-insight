@@ -90,7 +90,7 @@ export const useArticles = () => {
   };
 };
 
-// Hook to fetch articles with free ranking and pagination
+// Hook to fetch articles with V4 SIFT ranking system
 export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
   const [featuredArticle, setFeaturedArticle] = useState<Article | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
@@ -107,7 +107,8 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
   const normalizedCategory = (categoryFilter?.toLowerCase().trim() || null) as ContentCategory | null;
   const isValidCategory = normalizedCategory !== null && ALL_CATEGORIES.includes(normalizedCategory);
 
-  // Initial fetch - uses pure ranking system, featured must be tech
+  // Initial fetch - uses V4 SIFT ranking (Hotness 35% + Freshness 35% + Value 30%)
+  // Featured article must be tech category
   const fetchInitial = async () => {
     try {
       setLoading(true);
@@ -115,92 +116,121 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
       setOffset(0);
       setHasMore(true);
 
-      // Featured article must be tech (highest ranked tech article)
-      const { data: featured, error: featuredError } = await supabase
-        .from('articles')
-        .select('*, sources(*), summaries(*)')
-        .in('status', VALID_STATUSES)
-        .eq('content_category', 'tech')
-        .order('rank_score', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      // Featured article: highest V4-ranked tech article
+      const { data: featuredData, error: featuredError } = await supabase
+        .rpc('get_ranked_feed_v4', { 
+          limit_count: 1, 
+          category_filter: 'tech' 
+        });
 
       if (featuredError) throw featuredError;
       
-      if (featured) {
-        setFeaturedArticle(transformArticle(featured));
+      let featured: Article | null = null;
+      if (featuredData && featuredData.length > 0) {
+        // Need to fetch full article with sources and summaries
+        const { data: fullFeatured } = await supabase
+          .from('articles')
+          .select('*, sources(*), summaries(*)')
+          .eq('id', featuredData[0].id)
+          .maybeSingle();
+        
+        if (fullFeatured) {
+          featured = transformArticle(fullFeatured);
+          setFeaturedArticle(featured);
+        }
       } else {
         setFeaturedArticle(null);
       }
 
-      // Fetch next articles (excluding featured) - pure rank_score ordering
-      let articlesQuery = supabase
-        .from('articles')
-        .select('*, sources(*), summaries(*)')
-        .in('status', VALID_STATUSES)
-        .order('rank_score', { ascending: false });
+      // Fetch remaining articles with V4 ranking
+      const { data: rankedData, error: rankedError } = await supabase
+        .rpc('get_ranked_feed_v4', { 
+          limit_count: INITIAL_LOAD + 1, // +1 to account for featured
+          category_filter: isValidCategory ? normalizedCategory : null
+        });
 
-      if (isValidCategory) {
-        articlesQuery = articlesQuery.eq('content_category', normalizedCategory);
+      if (rankedError) throw rankedError;
+
+      // Get full article data for ranked results (excluding featured)
+      const rankedIds = (rankedData || [])
+        .filter((r: any) => !featured || r.id !== featured.id)
+        .slice(0, INITIAL_LOAD)
+        .map((r: any) => r.id);
+
+      if (rankedIds.length > 0) {
+        const { data: fullArticles, error: articlesError } = await supabase
+          .from('articles')
+          .select('*, sources(*), summaries(*)')
+          .in('id', rankedIds);
+
+        if (articlesError) throw articlesError;
+
+        // Sort by the V4 ranking order
+        const articleMap = new Map((fullArticles || []).map(a => [a.id, a]));
+        const sortedArticles = rankedIds
+          .map((id: string) => articleMap.get(id))
+          .filter(Boolean)
+          .map(transformArticle);
+
+        setArticles(sortedArticles);
+        setOffset(sortedArticles.length);
+        setHasMore(sortedArticles.length === INITIAL_LOAD);
+      } else {
+        setArticles([]);
+        setHasMore(false);
       }
-
-      // Exclude the featured article if we have one
-      if (featured) {
-        articlesQuery = articlesQuery.neq('id', featured.id);
-      }
-
-      const { data: regular, error: regularError } = await articlesQuery.limit(INITIAL_LOAD);
-
-      if (regularError) throw regularError;
-
-      const fetchedArticles = (regular || []).map(transformArticle);
-      setArticles(fetchedArticles);
-      setOffset(INITIAL_LOAD);
-      setHasMore(fetchedArticles.length === INITIAL_LOAD);
     } catch (err) {
+      console.error('Failed to fetch articles:', err);
       setError(err instanceof Error ? err : new Error('Failed to fetch articles'));
     } finally {
       setLoading(false);
     }
   };
 
-  // Load more articles
+  // Load more articles with V4 ranking
   const loadMore = async () => {
     if (loadingMore || !hasMore) return;
 
     try {
       setLoadingMore(true);
 
-      let query = supabase
-        .from('articles')
-        .select('*, sources(*), summaries(*)')
-        .in('status', VALID_STATUSES)
-        .order('rank_score', { ascending: false });
+      // Get more ranked articles
+      const { data: rankedData, error: rankedError } = await supabase
+        .rpc('get_ranked_feed_v4', { 
+          limit_count: offset + BATCH_SIZE + 1,
+          category_filter: isValidCategory ? normalizedCategory : null
+        });
 
-      // Apply category filter if present
-      if (isValidCategory) {
-        query = query.eq('content_category', normalizedCategory);
-      }
+      if (rankedError) throw rankedError;
 
       // Exclude already loaded articles
-      const existingIds = articles.map(a => a.id);
+      const existingIds = new Set(articles.map(a => a.id));
       if (featuredArticle) {
-        existingIds.push(featuredArticle.id);
+        existingIds.add(featuredArticle.id);
       }
 
-      if (existingIds.length > 0) {
-        query = query.not('id', 'in', `(${existingIds.join(',')})`);
-      }
+      const newRankedIds = (rankedData || [])
+        .filter((r: any) => !existingIds.has(r.id))
+        .slice(0, BATCH_SIZE)
+        .map((r: any) => r.id);
 
-      const { data, error } = await query.limit(BATCH_SIZE);
-
-      if (error) throw error;
-
-      const newArticles = (data || []).map(transformArticle);
-      
-      if (newArticles.length === 0) {
+      if (newRankedIds.length === 0) {
         setHasMore(false);
       } else {
+        const { data: fullArticles, error: articlesError } = await supabase
+          .from('articles')
+          .select('*, sources(*), summaries(*)')
+          .in('id', newRankedIds);
+
+        if (articlesError) throw articlesError;
+
+        // Sort by the V4 ranking order
+        const articleMap = new Map((fullArticles || []).map(a => [a.id, a]));
+        const newArticles = newRankedIds
+          .map((id: string) => articleMap.get(id))
+          .filter(Boolean)
+          .map(transformArticle);
+
         setArticles(prev => [...prev, ...newArticles]);
         setOffset(prev => prev + newArticles.length);
         setHasMore(newArticles.length === BATCH_SIZE);
@@ -226,6 +256,26 @@ export const useArticlesWithDiversity = (categoryFilter?: string | null) => {
     loadMore,
     refetch: fetchInitial,
   };
+};
+
+// Hook to track article interactions (for V4 ranking engagement)
+export const useArticleInteraction = () => {
+  const trackInteraction = async (articleId: string, type: 'read' | 'saved' | 'shared') => {
+    try {
+      const sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
+      localStorage.setItem('session_id', sessionId);
+      
+      await supabase.rpc('track_article_interaction', {
+        p_article_id: articleId,
+        p_interaction_type: type,
+        p_session_id: sessionId
+      });
+    } catch (err) {
+      console.error('Failed to track interaction:', err);
+    }
+  };
+
+  return { trackInteraction };
 };
 
 // Hook to fetch single article by ID
