@@ -8,6 +8,7 @@
    category?: string | null;
    className?: string;
    variant?: 'card' | 'hero';
+   articleId?: string;
  }
  
  // Source brand colors for fallback backgrounds
@@ -33,20 +34,40 @@
    return sourceColors[source] || { bg: 'from-primary/20 to-primary/40', accent: 'bg-primary' };
  };
  
- export const ArticleImage = ({ 
-   src, 
-   alt, 
-   source, 
-   category,
-   className = '',
-   variant = 'card'
- }: ArticleImageProps) => {
-   const [hasError, setHasError] = useState(false);
-   const [isLoading, setIsLoading] = useState(true);
-   
-   const showFallback = !src || hasError;
-   const colors = getSourceColors(source);
-   const initial = source.charAt(0).toUpperCase();
+export const ArticleImage = ({ 
+  src, 
+  alt, 
+  source, 
+  category,
+  className = '',
+  variant = 'card',
+  articleId
+}: ArticleImageProps) => {
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [useGeneratedImage, setUseGeneratedImage] = useState(false);
+  
+  const showFallback = (!src || hasError) && !useGeneratedImage;
+  const colors = getSourceColors(source);
+  const initial = source.charAt(0).toUpperCase();
+  
+  // If we have an articleId and no image, try the generated image
+  const generatedImageUrl = articleId 
+    ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-article-image?id=${articleId}`
+    : null;
+  
+  // When original image fails and we have a generated image URL, try it
+  const handleError = () => {
+    if (!useGeneratedImage && generatedImageUrl) {
+      setUseGeneratedImage(true);
+      setIsLoading(true);
+    } else {
+      setHasError(true);
+      setIsLoading(false);
+    }
+  };
+  
+  const imageSrc = useGeneratedImage ? generatedImageUrl : src;
    
    if (showFallback) {
      return (
@@ -91,23 +112,20 @@
      );
    }
    
-   return (
-     <div className={`relative w-full h-full ${className}`}>
-       {isLoading && (
-         <div className="absolute inset-0 skeleton-shimmer" />
-       )}
-       <img
-         src={src}
-         alt={alt}
-         className={`w-full h-full object-cover transition-opacity duration-300 ${
-           isLoading ? 'opacity-0' : 'opacity-100'
-         }`}
-         onLoad={() => setIsLoading(false)}
-         onError={() => {
-           setHasError(true);
-           setIsLoading(false);
-         }}
-       />
-     </div>
-   );
- };
+  return (
+    <div className={`relative w-full h-full ${className}`}>
+      {isLoading && (
+        <div className="absolute inset-0 skeleton-shimmer" />
+      )}
+      <img
+        src={imageSrc || ''}
+        alt={alt}
+        className={`w-full h-full object-cover transition-opacity duration-300 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        }`}
+        onLoad={() => setIsLoading(false)}
+        onError={handleError}
+      />
+    </div>
+  );
+};

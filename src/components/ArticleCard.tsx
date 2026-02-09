@@ -28,6 +28,7 @@ export const ArticleCard = ({ article, index }: ArticleCardProps) => {
               alt={article.originalTitle}
                source={article.sourcePublication}
                category={article.tags[0] || article.topic}
+               articleId={article.id}
             />
             {/* Bookmark button overlay */}
             <div className="absolute top-2 right-2">
