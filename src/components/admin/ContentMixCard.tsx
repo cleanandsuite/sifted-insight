@@ -4,19 +4,21 @@
  import { AlertTriangle, TrendingUp, TrendingDown, Minus, PieChart } from 'lucide-react';
  import { cn } from '@/lib/utils';
  
- const CATEGORY_COLORS: Record<ContentCategory, { bg: string; text: string }> = {
-   tech: { bg: 'bg-primary/10', text: 'text-primary' },
-   finance: { bg: 'bg-emerald-500/10', text: 'text-emerald-600' },
-   politics: { bg: 'bg-violet-500/10', text: 'text-violet-600' },
-   climate: { bg: 'bg-green-500/10', text: 'text-green-600' },
- };
- 
- const CATEGORY_LABELS: Record<ContentCategory, string> = {
-   tech: 'Tech',
-   finance: 'Finance',
-   politics: 'Politics',
-   climate: 'Climate',
- };
+const CATEGORY_COLORS: Record<ContentCategory, { bg: string; text: string }> = {
+  tech: { bg: 'bg-primary/10', text: 'text-primary' },
+  video_games: { bg: 'bg-amber-500/10', text: 'text-amber-600' },
+  finance: { bg: 'bg-emerald-500/10', text: 'text-emerald-600' },
+  politics: { bg: 'bg-violet-500/10', text: 'text-violet-600' },
+  climate: { bg: 'bg-green-500/10', text: 'text-green-600' },
+};
+
+const CATEGORY_LABELS: Record<ContentCategory, string> = {
+  tech: 'Tech',
+  video_games: 'Games',
+  finance: 'Finance',
+  politics: 'Politics',
+  climate: 'Climate',
+};
  
  export function ContentMixCard() {
    const { data, isLoading, error } = useContentMix();
@@ -83,10 +85,10 @@
              <span className="text-muted-foreground mx-2">/</span>
              <span>{otherPercent}%</span>
            </div>
-           <p className="text-sm text-muted-foreground mt-1">
-             Tech / Other (Target: 68% / 32%)
-           </p>
-         </div>
+            <p className="text-sm text-muted-foreground mt-1">
+              Tech / Other (Target: 60% / 40%)
+            </p>
+          </div>
          
          {/* Progress bar */}
          <div className="space-y-2">
@@ -94,12 +96,13 @@
              {data.distribution.map((item) => (
                <div
                  key={item.category}
-                 className={cn(
-                   "flex items-center justify-center text-xs font-bold text-white",
-                   item.category === 'tech' ? 'bg-primary' :
-                   item.category === 'finance' ? 'bg-emerald-500' :
-                   item.category === 'politics' ? 'bg-violet-500' : 'bg-green-500'
-                 )}
+                  className={cn(
+                    "flex items-center justify-center text-xs font-bold text-white",
+                    item.category === 'tech' ? 'bg-primary' :
+                    item.category === 'video_games' ? 'bg-amber-500' :
+                    item.category === 'finance' ? 'bg-emerald-500' :
+                    item.category === 'politics' ? 'bg-violet-500' : 'bg-green-500'
+                  )}
                  style={{ width: `${Math.max(item.ratio * 100, 5)}%` }}
                >
                  {item.ratio >= 0.08 && `${Math.round(item.ratio * 100)}%`}
@@ -109,7 +112,7 @@
          </div>
          
          {/* Category breakdown */}
-         <div className="grid grid-cols-2 gap-3">
+         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
            {data.distribution.map((item) => {
              const colors = CATEGORY_COLORS[item.category];
              const deviationPercent = Math.round(item.deviation * 100);

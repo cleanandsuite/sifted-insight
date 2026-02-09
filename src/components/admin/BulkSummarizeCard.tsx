@@ -47,24 +47,31 @@
          return;
        }
  
-       // Simulate progress while waiting
-       const progressInterval = setInterval(() => {
-         setProgress((prev) => Math.min(prev + 5, 90));
-       }, 1000);
- 
-       const response = await fetch(
-         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/batch-summarize`,
-         {
-           method: 'POST',
-           headers: {
-             'Authorization': `Bearer ${session.access_token}`,
-             'Content-Type': 'application/json',
-           },
+      // Simulate progress while waiting
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => Math.min(prev + 3, 90));
+      }, 2000);
+
+      // Set a timeout for the fetch operation
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout for summarization
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/batch-summarize`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`,
+              'Content-Type': 'application/json',
+            },
             body: JSON.stringify({ limit: 100 }),
-         }
-       );
- 
-       clearInterval(progressInterval);
+            signal: controller.signal,
+          }
+        );
+
+        clearTimeout(timeoutId);
+        clearInterval(progressInterval);
  
        const result: BatchResult = await response.json();
  
@@ -79,17 +86,30 @@
            toast.success(`Processed ${result.succeeded}/${result.processed} articles`);
          }
          onComplete?.();
-       } else {
-         setProgress(0);
-         toast.error(result.error || 'Batch summarization failed');
-       }
-     } catch (error) {
-       setProgress(0);
-       toast.error('Failed to trigger batch summarization');
-     } finally {
-       setIsProcessing(false);
-     }
-   };
+        } else {
+          setProgress(0);
+          toast.error(result.error || 'Batch summarization failed');
+        }
+      } catch (fetchError) {
+        clearInterval(progressInterval);
+        clearTimeout(timeoutId);
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          setProgress(100);
+          setLastRunTime(new Date());
+          toast.warning('Request timed out but summarization may still be processing. Check results in a moment.');
+          onComplete?.();
+        } else {
+          setProgress(0);
+          toast.error('Failed to trigger batch summarization');
+        }
+      }
+    } catch (error) {
+      setProgress(0);
+      toast.error('Failed to authenticate');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
  
    return (
      <Card className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">

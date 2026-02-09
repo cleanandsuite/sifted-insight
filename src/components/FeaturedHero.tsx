@@ -26,6 +26,7 @@ export const FeaturedHero = ({ article }: FeaturedHeroProps) => {
              source={article.sourcePublication}
              category={article.tags[0] || article.topic}
              variant="hero"
+             articleId={article.id}
              className="transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />

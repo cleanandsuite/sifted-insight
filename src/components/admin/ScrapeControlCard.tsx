@@ -14,12 +14,13 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
  
-type ContentCategory = 'tech' | 'finance' | 'politics' | 'climate';
+type ContentCategory = 'tech' | 'finance' | 'politics' | 'climate' | 'video_games';
 type ScrapeCategory = 'all' | ContentCategory;
 
 const CATEGORIES: Array<{ value: ScrapeCategory; label: string }> = [
   { value: 'all', label: 'All Sources' },
   { value: 'tech', label: 'Tech' },
+  { value: 'video_games', label: 'Video Games' },
   { value: 'finance', label: 'Finance' },
   { value: 'politics', label: 'Politics' },
   { value: 'climate', label: 'Climate' },
@@ -34,6 +35,7 @@ interface ScrapeResult {
 
  interface CategoryBreakdown {
    tech: number;
+   video_games: number;
    finance: number;
    politics: number;
    climate: number;
@@ -70,7 +72,7 @@ export const ScrapeControlCard = ({ onScrapeComplete }: ScrapeControlCardProps) 
       const progressInterval = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 90) return prev;
-          const increment = Math.random() * 15;
+          const increment = Math.random() * 10;
           return Math.min(prev + increment, 90);
         });
         setScrapePhase((prev) => {
@@ -79,7 +81,7 @@ export const ScrapeControlCard = ({ onScrapeComplete }: ScrapeControlCardProps) 
             'Fetching RSS feeds...',
             'Processing articles...',
             'Extracting content...',
-            'Summarizing with AI...',
+            'Classifying categories...',
           ];
           const currentIndex = phases.indexOf(prev);
           if (currentIndex < phases.length - 1) {
@@ -87,23 +89,30 @@ export const ScrapeControlCard = ({ onScrapeComplete }: ScrapeControlCardProps) 
           }
           return prev;
         });
-      }, 2000);
+      }, 3000);
 
       setScrapePhase('Connecting to sources...');
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scrape-news`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ category: selectedCategory }),
-        }
-      );
+      // Set a timeout for the fetch operation
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
 
-      clearInterval(progressInterval);
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scrape-news`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ category: selectedCategory }),
+            signal: controller.signal,
+          }
+        );
+
+        clearTimeout(timeoutId);
+        clearInterval(progressInterval);
 
       const result = await response.json();
 
@@ -115,15 +124,29 @@ export const ScrapeControlCard = ({ onScrapeComplete }: ScrapeControlCardProps) 
          setCategoryBreakdown(result.categoryBreakdown || null);
         toast.success(`Scraping complete! Added ${result.totalArticlesAdded} articles`);
         onScrapeComplete?.();
-      } else {
-        setProgress(0);
-        setScrapePhase('Failed');
-        toast.error(result.error || 'Scraping failed');
+        } else {
+          setProgress(0);
+          setScrapePhase('Failed');
+          toast.error(result.error || 'Scraping failed');
+        }
+      } catch (fetchError) {
+        clearInterval(progressInterval);
+        clearTimeout(timeoutId);
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          setProgress(100);
+          setScrapePhase('Request timed out - check results');
+          toast.warning('Request timed out but scraping may still be processing. Check results in a moment.');
+          onScrapeComplete?.();
+        } else {
+          setProgress(0);
+          setScrapePhase('Error occurred');
+          toast.error('Failed to trigger scrape');
+        }
       }
     } catch (error) {
       setProgress(0);
       setScrapePhase('Error occurred');
-      toast.error('Failed to trigger scrape');
+      toast.error('Failed to authenticate');
     } finally {
       setIsScraping(false);
     }
@@ -201,14 +224,14 @@ export const ScrapeControlCard = ({ onScrapeComplete }: ScrapeControlCardProps) 
  
        {/* Category Breakdown */}
        {categoryBreakdown && totalArticlesAdded > 0 && (
-         <div className="grid grid-cols-4 gap-2 pt-2 border-t-2 border-black">
-           {(['tech', 'finance', 'politics', 'climate'] as ContentCategory[]).map((cat) => (
+         <div className="grid grid-cols-5 gap-2 pt-2 border-t-2 border-black">
+           {(['tech', 'video_games', 'finance', 'politics', 'climate'] as ContentCategory[]).map((cat) => (
              <div key={cat} className="text-center p-2 bg-muted border border-black">
                <div className="text-lg font-bold">
                  {categoryBreakdown[cat] || 0}
                </div>
                <div className="text-xs capitalize text-muted-foreground">
-                 {cat}
+                 {cat === 'video_games' ? 'Games' : cat}
                </div>
              </div>
            ))}

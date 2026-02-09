@@ -2,19 +2,21 @@
  import { useContentMix, ContentCategory } from '@/hooks/useContentMix';
  import { AlertTriangle } from 'lucide-react';
  
- const CATEGORY_COLORS: Record<ContentCategory, string> = {
-   tech: 'bg-primary',
-   finance: 'bg-emerald-500',
-   politics: 'bg-violet-500',
-   climate: 'bg-green-500',
- };
- 
- const CATEGORY_LABELS: Record<ContentCategory, string> = {
-   tech: 'Tech',
-   finance: 'Finance',
-   politics: 'Politics',
-   climate: 'Climate',
- };
+const CATEGORY_COLORS: Record<ContentCategory, string> = {
+  tech: 'bg-primary',
+  video_games: 'bg-amber-500',
+  finance: 'bg-emerald-500',
+  politics: 'bg-violet-500',
+  climate: 'bg-green-500',
+};
+
+const CATEGORY_LABELS: Record<ContentCategory, string> = {
+  tech: 'Tech',
+  video_games: 'Games',
+  finance: 'Finance',
+  politics: 'Politics',
+  climate: 'Climate',
+};
  
  interface ContentMixIndicatorProps {
    className?: string;
